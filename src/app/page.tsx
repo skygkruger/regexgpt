@@ -15,7 +15,7 @@ export default function Home() {
 
   const handleSubmit = async () => {
     if (!input.trim()) return
-    
+
     setLoading(true)
     setError('')
     setOutput('')
@@ -48,20 +48,20 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const examples = mode === 'generate' 
+  const examples = mode === 'generate'
     ? [
-        'Match any email address',
-        'Match a phone number like (123) 456-7890',
-        'Match a URL starting with http or https',
-        'Match a date in MM/DD/YYYY format',
-        'Match a hex color code like #FF5733',
-      ]
+      'Match any email address',
+      'Match a phone number like (123) 456-7890',
+      'Match a URL starting with http or https',
+      'Match a date in MM/DD/YYYY format',
+      'Match a hex color code like #FF5733',
+    ]
     : [
-        '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
-        '\\d{3}-\\d{3}-\\d{4}',
-        '^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b',
-        '^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$',
-      ]
+      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+      '\\d{3}-\\d{3}-\\d{4}',
+      '^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b',
+      '^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$',
+    ]
 
   return (
     <main className="min-h-screen">
@@ -91,7 +91,7 @@ export default function Home() {
           Stop Struggling with Regex
         </h1>
         <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-          Generate regex from plain English or get instant explanations for any pattern. 
+          Generate regex from plain English or get instant explanations for any pattern.
           No more cryptic documentation.
         </p>
       </section>
@@ -101,11 +101,10 @@ export default function Home() {
         <div className="flex bg-white/5 rounded-xl p-1 w-fit mx-auto">
           <button
             onClick={() => { setMode('generate'); setInput(''); setOutput(''); }}
-            className={`px-6 py-3 rounded-lg font-medium transition ${
-              mode === 'generate' 
-                ? 'bg-green-500 text-black' 
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`px-6 py-3 rounded-lg font-medium transition ${mode === 'generate'
+              ? 'bg-green-500 text-black'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             <span className="flex items-center gap-2">
               <Zap className="w-4 h-4" />
@@ -114,11 +113,10 @@ export default function Home() {
           </button>
           <button
             onClick={() => { setMode('explain'); setInput(''); setOutput(''); }}
-            className={`px-6 py-3 rounded-lg font-medium transition ${
-              mode === 'explain' 
-                ? 'bg-green-500 text-black' 
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`px-6 py-3 rounded-lg font-medium transition ${mode === 'explain'
+              ? 'bg-green-500 text-black'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             <span className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
@@ -138,8 +136,8 @@ export default function Home() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={mode === 'generate' 
-                ? 'e.g., Match an email address...' 
+              placeholder={mode === 'generate'
+                ? 'e.g., Match an email address...'
                 : 'e.g., ^[a-zA-Z0-9]+$'
               }
               className="w-full h-32 bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:border-green-500/50 resize-none font-mono"
@@ -262,7 +260,7 @@ export default function Home() {
       <section id="pricing" className="max-w-4xl mx-auto px-4 mb-20">
         <h2 className="text-3xl font-bold text-center mb-4">Simple Pricing</h2>
         <p className="text-gray-400 text-center mb-12">Free for most users. Upgrade for unlimited access.</p>
-        
+
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
             <h3 className="text-xl font-semibold mb-2">Free</h3>
@@ -312,9 +310,14 @@ export default function Home() {
                 Priority support
               </li>
             </ul>
-            <button className="w-full py-3 bg-green-500 text-black rounded-xl font-semibold hover:bg-green-400 transition glow-green">
+            <a
+              href="https://buy.stripe.com/4gM7sMeWdd4r5LQ7NU1VK00"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full py-3 bg-green-500 text-black rounded-xl font-semibold hover:bg-green-400 transition glow-green text-center"
+            >
               Upgrade to Pro
-            </button>
+            </a>
           </div>
         </div>
       </section>
