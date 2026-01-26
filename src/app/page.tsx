@@ -97,9 +97,9 @@ export default function Home() {
     >
       {/* HEADER */}
       <header style={{ borderBottom: '1px solid #6e6a86' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ color: '#7eb8da', fontSize: '12px' }}>REGEXGPT</span>
-          <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#7eb8da' }}>
+        <div style={{ padding: '18px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ color: '#7eb8da', fontSize: '15px' }}>REGEXGPT</span>
+          <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: '#7eb8da' }}>
             <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</a>
             <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>
             <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
@@ -111,36 +111,30 @@ export default function Home() {
       <main style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px' }}>
 
         {/* ASCII LOGO */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
-          <div style={{
-            border: '2px solid #7eb8da',
-            padding: '16px 24px',
-            display: 'inline-block',
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px', marginTop: '24px' }}>
+          <pre style={{
+            fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+            fontSize: '20px',
+            lineHeight: '1.1',
+            margin: 0,
+            color: '#7eb8da',
+            textAlign: 'left',
           }}>
-            <pre style={{
-              fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-              fontSize: '16px',
-              lineHeight: '1.05',
-              margin: 0,
-              color: '#7eb8da',
-              textAlign: 'center',
-            }}>
 {`██████╗ ███████╗ ██████╗ ███████╗██╗  ██╗
 ██╔══██╗██╔════╝██╔════╝ ██╔════╝╚██╗██╔╝
 ██████╔╝█████╗  ██║  ███╗█████╗   ╚███╔╝
 ██╔══██╗██╔══╝  ██║   ██║██╔══╝   ██╔██╗
 ██║  ██║███████╗╚██████╔╝███████╗██╔╝ ██╗
 ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝`}
-            </pre>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px', gap: '4px' }}>
-              <span style={{ border: '1px solid #7eb8da', padding: '4px 10px', color: '#7eb8da', fontSize: '14px' }}>G</span>
-              <span style={{ color: '#7eb8da', padding: '4px 0' }}>─</span>
-              <span style={{ border: '1px solid #7eb8da', padding: '4px 10px', color: '#7eb8da', fontSize: '14px' }}>P</span>
-              <span style={{ color: '#7eb8da', padding: '4px 0' }}>─</span>
-              <span style={{ border: '1px solid #7eb8da', padding: '4px 10px', color: '#7eb8da', fontSize: '14px' }}>T</span>
-            </div>
+          </pre>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '12px', gap: '0' }}>
+            <span style={{ border: '1px solid #7eb8da', padding: '4px 12px', color: '#7eb8da', fontSize: '14px' }}>G</span>
+            <span style={{ color: '#7eb8da', fontSize: '14px' }}>───</span>
+            <span style={{ border: '1px solid #7eb8da', padding: '4px 12px', color: '#7eb8da', fontSize: '14px' }}>P</span>
+            <span style={{ color: '#7eb8da', fontSize: '14px' }}>───</span>
+            <span style={{ border: '1px solid #7eb8da', padding: '4px 12px', color: '#7eb8da', fontSize: '14px' }}>T</span>
           </div>
-          <p style={{ color: '#c4a7e7', fontSize: '12px', letterSpacing: '2px', marginTop: '12px' }}>
+          <p style={{ color: '#6e6a86', fontSize: '12px', letterSpacing: '1px', marginTop: '12px' }}>
             ·:·:· PATTERN GENERATOR v1.0 ·:·:·
           </p>
         </div>
