@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 type Mode = 'generate' | 'explain'
 
@@ -100,10 +101,10 @@ export default function Home() {
         <div style={{ padding: '18px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ color: '#7eb8da', fontSize: '15px' }}>REGEXGPT</span>
           <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: '#7eb8da' }}>
-            <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</a>
+            <Link href="/docs" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</Link>
             <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
-            <span style={{ cursor: 'pointer' }}>[@]</span>
+            <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
+            <a href="https://x.com/run_veridian" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }}>[@]</a>
           </div>
         </div>
       </header>
@@ -483,12 +484,12 @@ export default function Home() {
             <p style={{ margin: '0 0 8px 0' }}>BUILT WITH {'<'}3 IN THE TERMINAL</p>
             <p style={{ margin: '0 0 16px 0' }}>(c) 2025 REGEXGPT</p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-              <span>[HOME]</span>
-              <span>[DOCS]</span>
-              <span>[PRICING]</span>
-              <span>[GITHUB]</span>
-              <span>[TWITTER]</span>
-              <span>[CONTACT]</span>
+              <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>[HOME]</Link>
+              <Link href="/docs" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</Link>
+              <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>
+              <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
+              <a href="https://x.com/run_veridian" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[TWITTER]</a>
+              <a href="mailto:support@regexgpt.dev" style={{ color: 'inherit', textDecoration: 'none' }}>[CONTACT]</a>
             </div>
           </div>
         </div>
