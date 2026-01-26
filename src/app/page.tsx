@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { Sparkles, Code, ArrowRight, Copy, Check, Zap, Share2, BookOpen } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 type Mode = 'generate' | 'explain'
 
@@ -12,6 +11,13 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState('')
+  const [cursorVisible, setCursorVisible] = useState(true)
+
+  // Blinking cursor effect
+  useEffect(() => {
+    const interval = setInterval(() => setCursorVisible(v => !v), 530)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = async () => {
     if (!input.trim()) return
@@ -50,290 +56,449 @@ export default function Home() {
 
   const examples = mode === 'generate'
     ? [
-      'Match any email address',
-      'Match a phone number like (123) 456-7890',
-      'Match a URL starting with http or https',
-      'Match a date in MM/DD/YYYY format',
-      'Match a hex color code like #FF5733',
+      'match an email address',
+      'match a URL starting with https',
+      'match a phone number like (123) 456-7890',
+      'match a hex color code like #FF5733',
     ]
     : [
       '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       '\\d{3}-\\d{3}-\\d{4}',
-      '^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b',
-      '^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$',
+      '^https?:\\/\\/',
+      '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
     ]
 
+  const preStyle = {
+    fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+    fontSize: '12px',
+    lineHeight: '1.2',
+    margin: 0,
+    whiteSpace: 'pre' as const,
+  }
+
+  const logoStyle = {
+    fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+    fontSize: '14px',
+    lineHeight: '1.05',
+    margin: 0,
+    whiteSpace: 'pre' as const,
+    textAlign: 'left' as const,
+  }
+
   return (
-    <main className="min-h-screen">
-      {/* Header */}
-      <header className="border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-              <Code className="w-5 h-5 text-black" />
-            </div>
-            <span className="font-semibold text-xl">RegexGPT</span>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: '#1a1a2e',
+        color: '#a8b2c3',
+        fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+        fontSize: '14px',
+      }}
+    >
+      {/* HEADER */}
+      <header style={{ borderBottom: '1px solid #6e6a86' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ color: '#7eb8da', fontSize: '12px' }}>REGEXGPT</span>
+          <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#7eb8da' }}>
+            <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</a>
+            <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
+            <span style={{ cursor: 'pointer' }}>[@]</span>
           </div>
-          <nav className="flex items-center gap-6">
-            <a href="#examples" className="text-sm text-gray-400 hover:text-white transition">Examples</a>
-            <a href="#pricing" className="text-sm text-gray-400 hover:text-white transition">Pricing</a>
-          </nav>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="max-w-4xl mx-auto px-4 pt-16 pb-8 text-center">
-        <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-4 py-2 rounded-full text-sm mb-6">
-          <Sparkles className="w-4 h-4" />
-          AI-Powered Regex Made Simple
-        </div>
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-          Stop Struggling with Regex
-        </h1>
-        <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-          Generate regex from plain English or get instant explanations for any pattern.
-          No more cryptic documentation.
-        </p>
-      </section>
+      <main style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px' }}>
 
-      {/* Mode Toggle */}
-      <section className="max-w-3xl mx-auto px-4 mb-8">
-        <div className="flex bg-white/5 rounded-xl p-1 w-fit mx-auto">
-          <button
-            onClick={() => { setMode('generate'); setInput(''); setOutput(''); }}
-            className={`px-6 py-3 rounded-lg font-medium transition ${mode === 'generate'
-              ? 'bg-green-500 text-black'
-              : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            <span className="flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              Generate Regex
-            </span>
-          </button>
-          <button
-            onClick={() => { setMode('explain'); setInput(''); setOutput(''); }}
-            className={`px-6 py-3 rounded-lg font-medium transition ${mode === 'explain'
-              ? 'bg-green-500 text-black'
-              : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            <span className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Explain Regex
-            </span>
-          </button>
-        </div>
-      </section>
-
-      {/* Main Tool */}
-      <section className="max-w-3xl mx-auto px-4 mb-12">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <div className="mb-4">
-            <label className="block text-sm text-gray-400 mb-2">
-              {mode === 'generate' ? 'Describe what you want to match' : 'Paste your regex pattern'}
-            </label>
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={mode === 'generate'
-                ? 'e.g., Match an email address...'
-                : 'e.g., ^[a-zA-Z0-9]+$'
-              }
-              className="w-full h-32 bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:border-green-500/50 resize-none font-mono"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                  handleSubmit()
-                }
-              }}
-            />
+        {/* ASCII LOGO */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+          <div style={{
+            border: '2px solid #7eb8da',
+            padding: '16px 24px',
+            display: 'inline-block',
+          }}>
+            <pre style={{
+              fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+              fontSize: '16px',
+              lineHeight: '1.05',
+              margin: 0,
+              color: '#7eb8da',
+              textAlign: 'center',
+            }}>
+{`██████╗ ███████╗ ██████╗ ███████╗██╗  ██╗
+██╔══██╗██╔════╝██╔════╝ ██╔════╝╚██╗██╔╝
+██████╔╝█████╗  ██║  ███╗█████╗   ╚███╔╝
+██╔══██╗██╔══╝  ██║   ██║██╔══╝   ██╔██╗
+██║  ██║███████╗╚██████╔╝███████╗██╔╝ ██╗
+╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝`}
+            </pre>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px', gap: '4px' }}>
+              <span style={{ border: '1px solid #7eb8da', padding: '4px 10px', color: '#7eb8da', fontSize: '14px' }}>G</span>
+              <span style={{ color: '#7eb8da', padding: '4px 0' }}>─</span>
+              <span style={{ border: '1px solid #7eb8da', padding: '4px 10px', color: '#7eb8da', fontSize: '14px' }}>P</span>
+              <span style={{ color: '#7eb8da', padding: '4px 0' }}>─</span>
+              <span style={{ border: '1px solid #7eb8da', padding: '4px 10px', color: '#7eb8da', fontSize: '14px' }}>T</span>
+            </div>
           </div>
+          <p style={{ color: '#c4a7e7', fontSize: '12px', letterSpacing: '2px', marginTop: '12px' }}>
+            ·:·:· PATTERN GENERATOR v1.0 ·:·:·
+          </p>
+        </div>
 
+        {/* TAGLINE */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <p style={{ color: '#e8e3e3', marginBottom: '8px' }}>
+            Stop struggling with regex. Describe it in plain English.
+          </p>
+          <p style={{ color: '#6e6a86', fontSize: '12px' }}>
+            // generate patterns from descriptions or explain existing ones
+          </p>
+        </div>
+
+        {/* TAB NAVIGATION */}
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0' }}>
+            <button
+              onClick={() => { setMode('generate'); setInput(''); setOutput(''); setError(''); }}
+              style={{
+                background: 'none',
+                border: '1px solid #7eb8da',
+                borderRight: 'none',
+                color: mode === 'generate' ? '#7eb8da' : '#6e6a86',
+                padding: '8px 24px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: '12px',
+              }}
+            >
+              {mode === 'generate' ? '[*] GENERATE' : '    GENERATE'}
+            </button>
+            <button
+              onClick={() => { setMode('explain'); setInput(''); setOutput(''); setError(''); }}
+              style={{
+                background: 'none',
+                border: '1px solid #7eb8da',
+                color: mode === 'explain' ? '#7eb8da' : '#6e6a86',
+                padding: '8px 24px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: '12px',
+              }}
+            >
+              {mode === 'explain' ? '[*] EXPLAIN' : '    EXPLAIN'}
+            </button>
+          </div>
+        </div>
+
+        {/* INPUT SECTION */}
+        <div style={{ marginBottom: '24px', color: '#7eb8da' }}>
+          <div style={{ border: '1px solid #7eb8da', padding: '16px' }}>
+            <div style={{ fontSize: '12px', marginBottom: '12px', color: '#7eb8da' }}>
+              {mode === 'generate' ? 'DESCRIBE YOUR PATTERN' : 'PASTE REGEX TO EXPLAIN'}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <span style={{ color: '#f2cdcd', marginRight: '8px', flexShrink: 0 }}>{'>'}</span>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                      handleSubmit()
+                    }
+                  }}
+                  placeholder={mode === 'generate' ? 'match an email address...' : '^[a-z]+$...'}
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    color: '#e8e3e3',
+                    fontFamily: 'inherit',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                    padding: 0,
+                    margin: 0,
+                  }}
+                />
+                {!input && (
+                  <span style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    color: '#f2cdcd',
+                    opacity: cursorVisible ? 1 : 0,
+                    pointerEvents: 'none',
+                  }}>█</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* BUTTONS */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '32px' }}>
           <button
             onClick={handleSubmit}
             disabled={loading || !input.trim()}
-            className="w-full bg-green-500 hover:bg-green-400 disabled:bg-green-500/50 disabled:cursor-not-allowed text-black font-semibold py-4 rounded-xl transition flex items-center justify-center gap-2 glow-green"
+            style={{
+              background: 'none',
+              border: '1px solid #a8d8b9',
+              color: '#a8d8b9',
+              padding: '8px 24px',
+              cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+              fontFamily: 'inherit',
+              fontSize: '12px',
+              opacity: loading || !input.trim() ? 0.5 : 1,
+            }}
           >
-            {loading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                {mode === 'generate' ? 'Generate Regex' : 'Explain Regex'}
-                <ArrowRight className="w-5 h-5" />
-              </>
-            )}
+            {loading ? '[~] PROCESSING...' : `[>] ${mode === 'generate' ? 'GENERATE' : 'EXPLAIN'}`}
           </button>
+          <button
+            onClick={() => { setInput(''); setOutput(''); setError(''); }}
+            style={{
+              background: 'none',
+              border: '1px solid #6e6a86',
+              color: '#6e6a86',
+              padding: '8px 24px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontSize: '12px',
+            }}
+          >
+            [x] CLEAR
+          </button>
+        </div>
 
-          {error && (
-            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400">
-              {error}
+        {/* ERROR SECTION */}
+        {error && (
+          <div style={{ marginBottom: '32px', border: '2px solid #eb6f92', padding: '16px' }}>
+            <div style={{ color: '#eb6f92', fontSize: '12px', marginBottom: '8px' }}>[!] ERROR</div>
+            <p style={{ color: '#e8e3e3', margin: 0 }}>{error}</p>
+          </div>
+        )}
+
+        {/* OUTPUT SECTION */}
+        {(output || loading) && !error && (
+          <div style={{ marginBottom: '32px', border: '2px solid #a8d8b9' }}>
+            <div style={{ padding: '8px 16px', borderBottom: '1px solid #a8d8b9', color: '#a8d8b9', fontSize: '12px' }}>
+              RESULT
             </div>
-          )}
-
-          {output && (
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm text-gray-400">
-                  {mode === 'generate' ? 'Your Regex' : 'Explanation'}
-                </label>
-                <div className="flex gap-2">
+            <div style={{ padding: '16px' }}>
+              {loading ? (
+                <div style={{ color: '#ffe9b0' }}>[~] Processing your request...</div>
+              ) : (
+                <div>
+                  <code style={{
+                    display: 'block',
+                    padding: '12px',
+                    backgroundColor: '#16161a',
+                    color: '#e8e3e3',
+                    fontSize: '13px',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-all',
+                    marginBottom: '16px',
+                  }}>
+                    {output}
+                  </code>
                   <button
                     onClick={copyToClipboard}
-                    className="p-2 hover:bg-white/10 rounded-lg transition"
-                    title="Copy to clipboard"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#f2cdcd',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      fontSize: '12px',
+                      padding: 0,
+                    }}
                   >
-                    {copied ? (
-                      <Check className="w-4 h-4 text-green-400" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-400" />
-                    )}
-                  </button>
-                  <button
-                    className="p-2 hover:bg-white/10 rounded-lg transition"
-                    title="Share"
-                  >
-                    <Share2 className="w-4 h-4 text-gray-400" />
+                    {copied ? '[/] COPIED' : '[:] COPY'}
                   </button>
                 </div>
+              )}
+            </div>
+            <div style={{ padding: '8px 16px', borderTop: '1px solid #a8d8b9', color: '#a8d8b9', fontSize: '12px' }}>
+              STATUS: {loading ? '(~) PROCESSING' : '(o) COMPLETE'}
+            </div>
+          </div>
+        )}
+
+        {/* EXAMPLES */}
+        <div style={{ marginBottom: '32px' }}>
+          <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// TRY THESE EXAMPLES</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+            {examples.map((example, i) => (
+              <button
+                key={i}
+                onClick={() => setInput(example)}
+                style={{
+                  background: 'none',
+                  border: '1px solid #7eb8da',
+                  color: '#7eb8da',
+                  padding: '12px',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: '12px',
+                  textAlign: 'left',
+                }}
+              >
+                {'>>>'} {example.length > 30 ? example.slice(0, 30) + '...' : example}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* FEATURES */}
+        <div id="features" style={{ marginBottom: '32px' }}>
+          <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// FEATURES</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <div style={{ border: '1px solid #7eb8da', padding: '16px' }}>
+              <div style={{ color: '#7eb8da', marginBottom: '12px' }}>[{'>'}] GENERATE</div>
+              <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0, lineHeight: '1.5' }}>
+                Describe what you want to match in plain English. Get a working regex instantly.
+              </p>
+            </div>
+            <div style={{ border: '1px solid #c4a7e7', padding: '16px' }}>
+              <div style={{ color: '#c4a7e7', marginBottom: '12px' }}>[?] EXPLAIN</div>
+              <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0, lineHeight: '1.5' }}>
+                Paste any cryptic regex pattern. Get a human-readable explanation.
+              </p>
+            </div>
+            <div style={{ border: '1px solid #a8d8b9', padding: '16px' }}>
+              <div style={{ color: '#a8d8b9', marginBottom: '12px' }}>[:] COPY</div>
+              <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0, lineHeight: '1.5' }}>
+                One-click copy to clipboard. Ready to paste into your code editor.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* PRICING */}
+        <div id="pricing" style={{ marginBottom: '32px' }}>
+          <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// PRICING</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', maxWidth: '600px', margin: '0 auto' }}>
+            {/* Free Tier */}
+            <div style={{ border: '1px solid #6e6a86', padding: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ border: '1px solid #6e6a86', padding: '8px 12px', color: '#a8b2c3' }}>F</div>
+                <span style={{ color: '#a8b2c3' }}>FREE</span>
               </div>
-              <div className="bg-black/50 border border-white/10 rounded-xl p-4 font-mono text-green-400 whitespace-pre-wrap">
-                {output}
+              <div style={{ color: '#e8e3e3', fontSize: '18px', marginBottom: '16px' }}>$0/forever</div>
+              <div style={{ color: '#a8b2c3', fontSize: '12px', lineHeight: '2' }}>
+                <div>[/] 10 generations/day</div>
+                <div>[/] Basic patterns</div>
+                <div>[/] Explain any regex</div>
+                <div>[x] History & favorites</div>
+                <div>[x] Priority processing</div>
+              </div>
+              <div style={{ marginTop: '16px', border: '1px solid #6e6a86', padding: '8px', textAlign: 'center', color: '#6e6a86', fontSize: '12px' }}>
+                CURRENT PLAN
               </div>
             </div>
-          )}
-        </div>
-      </section>
 
-      {/* Examples */}
-      <section id="examples" className="max-w-3xl mx-auto px-4 mb-16">
-        <h2 className="text-lg font-medium text-gray-400 mb-4">Try an example:</h2>
-        <div className="flex flex-wrap gap-2">
-          {examples.map((example, i) => (
-            <button
-              key={i}
-              onClick={() => setInput(example)}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-gray-300 hover:text-white transition"
-            >
-              {example.length > 40 ? example.slice(0, 40) + '...' : example}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="max-w-6xl mx-auto px-4 mb-20">
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-            <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4">
-              <Zap className="w-6 h-6 text-green-400" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Instant Generation</h3>
-            <p className="text-gray-400">
-              Describe what you need in plain English. Get a working regex in seconds.
-            </p>
-          </div>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4">
-              <BookOpen className="w-6 h-6 text-blue-400" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Clear Explanations</h3>
-            <p className="text-gray-400">
-              Paste any regex and get a human-readable breakdown of what it does.
-            </p>
-          </div>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-            <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-4">
-              <Share2 className="w-6 h-6 text-purple-400" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Share & Save</h3>
-            <p className="text-gray-400">
-              Share regex explanations with your team. Build a library of patterns.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="max-w-4xl mx-auto px-4 mb-20">
-        <h2 className="text-3xl font-bold text-center mb-4">Simple Pricing</h2>
-        <p className="text-gray-400 text-center mb-12">Free for most users. Upgrade for unlimited access.</p>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-            <h3 className="text-xl font-semibold mb-2">Free</h3>
-            <p className="text-gray-400 mb-4">Perfect for occasional use</p>
-            <div className="text-4xl font-bold mb-6">$0</div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-center gap-2 text-gray-300">
-                <Check className="w-5 h-5 text-green-400" />
-                10 generations per day
-              </li>
-              <li className="flex items-center gap-2 text-gray-300">
-                <Check className="w-5 h-5 text-green-400" />
-                10 explanations per day
-              </li>
-              <li className="flex items-center gap-2 text-gray-300">
-                <Check className="w-5 h-5 text-green-400" />
-                Basic patterns
-              </li>
-            </ul>
-            <button className="w-full py-3 border border-white/20 rounded-xl font-medium hover:bg-white/5 transition">
-              Get Started
-            </button>
-          </div>
-
-          <div className="bg-gradient-to-b from-green-500/10 to-transparent border border-green-500/30 rounded-2xl p-8 relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-black text-xs font-semibold px-3 py-1 rounded-full">
-              POPULAR
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Pro</h3>
-            <p className="text-gray-400 mb-4">For power users and teams</p>
-            <div className="text-4xl font-bold mb-6">$6<span className="text-lg text-gray-400 font-normal">/mo</span></div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-center gap-2 text-gray-300">
-                <Check className="w-5 h-5 text-green-400" />
-                Unlimited generations
-              </li>
-              <li className="flex items-center gap-2 text-gray-300">
-                <Check className="w-5 h-5 text-green-400" />
-                Unlimited explanations
-              </li>
-              <li className="flex items-center gap-2 text-gray-300">
-                <Check className="w-5 h-5 text-green-400" />
-                API access
-              </li>
-              <li className="flex items-center gap-2 text-gray-300">
-                <Check className="w-5 h-5 text-green-400" />
-                Priority support
-              </li>
-            </ul>
+            {/* Pro Tier */}
             <a
               href="https://buy.stripe.com/4gM7sMeWdd4r5LQ7NU1VK00"
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full py-3 bg-green-500 text-black rounded-xl font-semibold hover:bg-green-400 transition glow-green text-center"
+              style={{ textDecoration: 'none' }}
             >
-              Upgrade to Pro
+              <div style={{ border: '2px solid #c4a7e7', padding: '24px', height: '100%', boxSizing: 'border-box' }}>
+                <div style={{ color: '#c4a7e7', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>
+                  * * * RECOMMENDED * * *
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ border: '2px solid #c4a7e7', padding: '8px 12px', color: '#c4a7e7' }}>P</div>
+                  <span style={{ color: '#c4a7e7' }}>PRO</span>
+                </div>
+                <div style={{ color: '#e8e3e3', fontSize: '18px', marginBottom: '16px' }}>$6/month</div>
+                <div style={{ color: '#a8b2c3', fontSize: '12px', lineHeight: '2' }}>
+                  <div>[/] Unlimited generations</div>
+                  <div>[/] Complex patterns</div>
+                  <div>[/] Explain any regex</div>
+                  <div>[/] History & favorites</div>
+                  <div>[/] Priority processing</div>
+                </div>
+                <div style={{ marginTop: '16px', border: '2px solid #c4a7e7', padding: '8px', textAlign: 'center', color: '#c4a7e7', fontSize: '12px' }}>
+                  [{'>'}] UPGRADE NOW
+                </div>
+              </div>
             </a>
           </div>
         </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 py-8">
-        <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
-              <Code className="w-4 h-4 text-black" />
+        {/* TESTIMONIALS */}
+        <div style={{ marginBottom: '32px' }}>
+          <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// WHAT DEVELOPERS SAY</p>
+          <div style={{ border: '1px solid #6e6a86' }}>
+            <div style={{ padding: '16px', borderBottom: '1px solid #6e6a86' }}>
+              <p style={{ color: '#e8e3e3', margin: '0 0 8px 0', fontStyle: 'italic' }}>
+                "Finally stopped googling 'regex for email' every single project."
+              </p>
+              <p style={{ color: '#6e6a86', margin: 0, fontSize: '12px', textAlign: 'right' }}>- @dev_on_twitter</p>
             </div>
-            <span className="font-medium">RegexGPT</span>
+            <div style={{ padding: '16px' }}>
+              <p style={{ color: '#e8e3e3', margin: '0 0 8px 0', fontStyle: 'italic' }}>
+                "The explain feature saved me 2 hours understanding legacy regex."
+              </p>
+              <p style={{ color: '#6e6a86', margin: 0, fontSize: '12px', textAlign: 'right' }}>- reddit user</p>
+            </div>
           </div>
-          <p className="text-sm text-gray-500">© 2025 RegexGPT. Made with AI.</p>
+        </div>
+
+        {/* FAQ */}
+        <div style={{ marginBottom: '32px' }}>
+          <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// FAQ</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <details style={{ color: '#a8b2c3' }}>
+              <summary style={{ color: '#7eb8da', cursor: 'pointer', padding: '8px 0' }}>
+                [?] How accurate are the generated patterns?
+              </summary>
+              <p style={{ margin: '8px 0 8px 24px', fontSize: '12px', lineHeight: '1.6' }}>
+                Our AI generates patterns that work for common use cases. Always test with your specific data before production use.
+              </p>
+            </details>
+            <details style={{ color: '#a8b2c3' }}>
+              <summary style={{ color: '#7eb8da', cursor: 'pointer', padding: '8px 0' }}>
+                [?] What regex flavors are supported?
+              </summary>
+              <p style={{ margin: '8px 0 8px 24px', fontSize: '12px', lineHeight: '1.6' }}>
+                We generate patterns compatible with JavaScript/PCRE. Most patterns work across Python, Java, Go, and PHP.
+              </p>
+            </details>
+            <details style={{ color: '#a8b2c3' }}>
+              <summary style={{ color: '#7eb8da', cursor: 'pointer', padding: '8px 0' }}>
+                [?] Is my data stored or used for training?
+              </summary>
+              <p style={{ margin: '8px 0 8px 24px', fontSize: '12px', lineHeight: '1.6' }}>
+                No. We don't store your queries or use them for training. Your data is processed and immediately discarded.
+              </p>
+            </details>
+          </div>
+        </div>
+
+      </main>
+
+      {/* FOOTER */}
+      <footer style={{ borderTop: '1px solid #6e6a86', marginTop: '64px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px', textAlign: 'center' }}>
+          <div style={{ color: '#6e6a86', fontSize: '12px' }}>
+            <p style={{ margin: '0 0 8px 0' }}>BUILT WITH {'<'}3 IN THE TERMINAL</p>
+            <p style={{ margin: '0 0 16px 0' }}>(c) 2025 REGEXGPT</p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+              <span>[HOME]</span>
+              <span>[DOCS]</span>
+              <span>[PRICING]</span>
+              <span>[GITHUB]</span>
+              <span>[TWITTER]</span>
+              <span>[CONTACT]</span>
+            </div>
+          </div>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }

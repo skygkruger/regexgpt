@@ -2,58 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* ════════════════════════════════════════════════════════════ */
+/*  PASTEL RETRO TERMINAL STYLES                                */
+/* ════════════════════════════════════════════════════════════ */
 
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 10, 10, 10;
-  --background-end-rgb: 20, 20, 20;
+  --bg-deep: #1a1a2e;
+  --bg-card: #16161a;
+  --bg-hover: #232336;
+  --text-primary: #e8e3e3;
+  --text-secondary: #a8b2c3;
+  --text-muted: #6e6a86;
+  --accent-cyan: #7eb8da;
+  --accent-mint: #a8d8b9;
+  --accent-lavender: #c4a7e7;
+  --accent-rose: #f2cdcd;
+  --accent-cream: #ffe9b0;
+  --accent-peach: #f5a97f;
+  --accent-coral: #eb6f92;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      rgb(var(--background-start-rgb)),
-      rgb(var(--background-end-rgb))
-    );
-  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-deep);
+  color: var(--text-secondary);
+  font-family: Consolas, Monaco, "Courier New", monospace;
 }
 
-.font-mono {
-  font-family: 'JetBrains Mono', monospace;
+pre {
+  font-family: inherit;
+  margin: 0;
 }
 
-/* Custom scrollbar */
+::selection {
+  background-color: var(--accent-lavender);
+  color: var(--bg-deep);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--bg-card);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--text-muted);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #444;
+  background: var(--accent-cyan);
 }
 
-/* Syntax highlighting for regex */
-.regex-highlight {
-  background: linear-gradient(135deg, #1e1e2e 0%, #2d2d3d 100%);
-  border: 1px solid #3d3d4d;
+*:focus-visible {
+  outline: 1px solid var(--accent-cyan);
+  outline-offset: 2px;
 }
 
-/* Glow effect for buttons */
-.glow-green {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+/* Blinking cursor animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
-.glow-green:hover {
-  box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+.cursor-blink {
+  animation: blink 1.06s step-end infinite;
+}
+
+/* Ensure proper rendering of box characters */
+.font-mono {
+  font-family: Consolas, Monaco, "Courier New", monospace;
+}
+
+/* Remove default textarea styling */
+textarea {
+  font-family: inherit;
+}
+
+/* Custom focus styles for inputs */
+textarea:focus {
+  outline: none;
+}
+
+/* Details/summary styling for FAQ */
+details summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
 }
