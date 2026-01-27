@@ -28,14 +28,38 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [])
 
-  // Check for upgrade success/cancel in URL
+  // Check for upgrade success/cancel in URL and fetch user plan
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('upgrade') === 'success') {
-      // Refresh to update user state
       window.history.replaceState({}, '', '/')
     }
   }, [])
+
+  // Fetch user's plan when logged in
+  useEffect(() => {
+    async function fetchUserPlan() {
+      if (!session?.access_token) return
+
+      try {
+        const response = await fetch('/api/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.plan) {
+            setPlan(data.plan)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch user plan:', err)
+      }
+    }
+
+    fetchUserPlan()
+  }, [session])
 
   const handleSubmit = async () => {
     if (!input.trim()) return
