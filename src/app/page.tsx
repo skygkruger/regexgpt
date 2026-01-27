@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/components/auth/AuthProvider'
+import { AuthModal } from '@/components/auth/AuthModal'
 
 type Mode = 'generate' | 'explain'
 
 export default function Home() {
+  const { user, loading: authLoading, signOut } = useAuth()
   const [mode, setMode] = useState<Mode>('generate')
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
@@ -13,11 +16,25 @@ export default function Home() {
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState('')
   const [cursorVisible, setCursorVisible] = useState(true)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
+  const [remaining, setRemaining] = useState<number | null>(null)
+  const [plan, setPlan] = useState<'free' | 'pro'>('free')
+  const [upgradeLoading, setUpgradeLoading] = useState(false)
 
   // Blinking cursor effect
   useEffect(() => {
     const interval = setInterval(() => setCursorVisible(v => !v), 530)
     return () => clearInterval(interval)
+  }, [])
+
+  // Check for upgrade success/cancel in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('upgrade') === 'success') {
+      // Refresh to update user state
+      window.history.replaceState({}, '', '/')
+    }
   }, [])
 
   const handleSubmit = async () => {
@@ -38,10 +55,21 @@ export default function Home() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong')
+        if (response.status === 429 && data.upgrade) {
+          setError(data.error)
+        } else {
+          throw new Error(data.error || 'Something went wrong')
+        }
+        return
       }
 
       setOutput(data.result)
+      if (data.remaining !== undefined) {
+        setRemaining(data.remaining)
+      }
+      if (data.plan) {
+        setPlan(data.plan)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -53,6 +81,50 @@ export default function Home() {
     await navigator.clipboard.writeText(output)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      setAuthMode('signin')
+      setShowAuthModal(true)
+      return
+    }
+
+    setUpgradeLoading(true)
+    try {
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to start checkout')
+    } finally {
+      setUpgradeLoading(false)
+    }
+  }
+
+  const handleManageBilling = async () => {
+    try {
+      const response = await fetch('/api/stripe/create-portal', {
+        method: 'POST',
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to open billing portal')
+      }
+
+      window.location.href = data.url
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to open billing portal')
+    }
   }
 
   const examples = mode === 'generate'
@@ -69,23 +141,6 @@ export default function Home() {
       '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
     ]
 
-  const preStyle = {
-    fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-    fontSize: '12px',
-    lineHeight: '1.2',
-    margin: 0,
-    whiteSpace: 'pre' as const,
-  }
-
-  const logoStyle = {
-    fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-    fontSize: '14px',
-    lineHeight: '1.05',
-    margin: 0,
-    whiteSpace: 'pre' as const,
-    textAlign: 'left' as const,
-  }
-
   return (
     <div
       style={{
@@ -96,15 +151,55 @@ export default function Home() {
         fontSize: '14px',
       }}
     >
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode={authMode}
+      />
+
       {/* HEADER */}
       <header style={{ borderBottom: '1px solid #6e6a86' }}>
         <div style={{ padding: '18px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ color: '#7eb8da', fontSize: '15px' }}>REGEXGPT</span>
-          <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: '#7eb8da' }}>
+          <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: '#7eb8da', alignItems: 'center' }}>
             <Link href="/docs" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</Link>
             <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>
             <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
-            <a href="https://x.com/run_veridian" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }}>[@]</a>
+            {authLoading ? (
+              <span style={{ color: '#6e6a86' }}>[...]</span>
+            ) : user ? (
+              <>
+                <span style={{ color: '#a8d8b9' }}>[{plan.toUpperCase()}]</span>
+                <button
+                  onClick={() => signOut()}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#6e6a86',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    fontSize: '13px',
+                  }}
+                >
+                  [LOGOUT]
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#7eb8da',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: '13px',
+                }}
+              >
+                [LOGIN]
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -188,8 +283,13 @@ export default function Home() {
         {/* INPUT SECTION */}
         <div style={{ marginBottom: '24px', color: '#7eb8da' }}>
           <div style={{ border: '1px solid #7eb8da', padding: '16px' }}>
-            <div style={{ fontSize: '12px', marginBottom: '12px', color: '#7eb8da' }}>
-              {mode === 'generate' ? 'DESCRIBE YOUR PATTERN' : 'PASTE REGEX TO EXPLAIN'}
+            <div style={{ fontSize: '12px', marginBottom: '12px', color: '#7eb8da', display: 'flex', justifyContent: 'space-between' }}>
+              <span>{mode === 'generate' ? 'DESCRIBE YOUR PATTERN' : 'PASTE REGEX TO EXPLAIN'}</span>
+              {remaining !== null && (
+                <span style={{ color: remaining < 3 ? '#eb6f92' : '#6e6a86' }}>
+                  {remaining} remaining today
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start' }}>
               <span style={{ color: '#f2cdcd', marginRight: '8px', flexShrink: 0 }}>{'>'}</span>
@@ -272,6 +372,24 @@ export default function Home() {
           <div style={{ marginBottom: '32px', border: '2px solid #eb6f92', padding: '16px' }}>
             <div style={{ color: '#eb6f92', fontSize: '12px', marginBottom: '8px' }}>[!] ERROR</div>
             <p style={{ color: '#e8e3e3', margin: 0 }}>{error}</p>
+            {error.includes('Upgrade') && (
+              <button
+                onClick={handleUpgrade}
+                disabled={upgradeLoading}
+                style={{
+                  marginTop: '16px',
+                  background: 'none',
+                  border: '1px solid #c4a7e7',
+                  color: '#c4a7e7',
+                  padding: '8px 16px',
+                  cursor: upgradeLoading ? 'not-allowed' : 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: '12px',
+                }}
+              >
+                {upgradeLoading ? '[~] Loading...' : '[>] Upgrade to Pro'}
+              </button>
+            )}
           </div>
         )}
 
@@ -384,44 +502,75 @@ export default function Home() {
               <div style={{ color: '#e8e3e3', fontSize: '18px', marginBottom: '16px' }}>$0/forever</div>
               <div style={{ color: '#a8b2c3', fontSize: '12px', lineHeight: '2' }}>
                 <div>[/] 10 generations/day</div>
+                <div>[/] 20 explanations/day</div>
                 <div>[/] Basic patterns</div>
-                <div>[/] Explain any regex</div>
                 <div>[x] History & favorites</div>
                 <div>[x] Priority processing</div>
               </div>
-              <div style={{ marginTop: '16px', border: '1px solid #6e6a86', padding: '8px', textAlign: 'center', color: '#6e6a86', fontSize: '12px' }}>
-                CURRENT PLAN
-              </div>
+              {plan === 'free' && (
+                <div style={{ marginTop: '16px', border: '1px solid #6e6a86', padding: '8px', textAlign: 'center', color: '#6e6a86', fontSize: '12px' }}>
+                  CURRENT PLAN
+                </div>
+              )}
             </div>
 
             {/* Pro Tier */}
-            <a
-              href="https://buy.stripe.com/4gM7sMeWdd4r5LQ7NU1VK00"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: 'none' }}
-            >
-              <div style={{ border: '2px solid #c4a7e7', padding: '24px', height: '100%', boxSizing: 'border-box' }}>
-                <div style={{ color: '#c4a7e7', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>
-                  * * * RECOMMENDED * * *
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                  <div style={{ border: '2px solid #c4a7e7', padding: '8px 12px', color: '#c4a7e7' }}>P</div>
-                  <span style={{ color: '#c4a7e7' }}>PRO</span>
-                </div>
-                <div style={{ color: '#e8e3e3', fontSize: '18px', marginBottom: '16px' }}>$6/month</div>
-                <div style={{ color: '#a8b2c3', fontSize: '12px', lineHeight: '2' }}>
-                  <div>[/] Unlimited generations</div>
-                  <div>[/] Complex patterns</div>
-                  <div>[/] Explain any regex</div>
-                  <div>[/] History & favorites</div>
-                  <div>[/] Priority processing</div>
-                </div>
-                <div style={{ marginTop: '16px', border: '2px solid #c4a7e7', padding: '8px', textAlign: 'center', color: '#c4a7e7', fontSize: '12px' }}>
-                  [{'>'}] UPGRADE NOW
-                </div>
+            <div style={{ border: '2px solid #c4a7e7', padding: '24px' }}>
+              <div style={{ color: '#c4a7e7', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>
+                * * * RECOMMENDED * * *
               </div>
-            </a>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ border: '2px solid #c4a7e7', padding: '8px 12px', color: '#c4a7e7' }}>P</div>
+                <span style={{ color: '#c4a7e7' }}>PRO</span>
+              </div>
+              <div style={{ color: '#e8e3e3', fontSize: '18px', marginBottom: '16px' }}>$6/month</div>
+              <div style={{ color: '#a8b2c3', fontSize: '12px', lineHeight: '2' }}>
+                <div>[/] Unlimited generations</div>
+                <div>[/] Unlimited explanations</div>
+                <div>[/] Complex patterns</div>
+                <div>[/] History & favorites</div>
+                <div>[/] Priority processing</div>
+              </div>
+              {plan === 'pro' ? (
+                <button
+                  onClick={handleManageBilling}
+                  style={{
+                    marginTop: '16px',
+                    width: '100%',
+                    border: '1px solid #a8d8b9',
+                    background: 'none',
+                    padding: '8px',
+                    textAlign: 'center',
+                    color: '#a8d8b9',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  [/] MANAGE BILLING
+                </button>
+              ) : (
+                <button
+                  onClick={handleUpgrade}
+                  disabled={upgradeLoading}
+                  style={{
+                    marginTop: '16px',
+                    width: '100%',
+                    border: '2px solid #c4a7e7',
+                    background: 'none',
+                    padding: '8px',
+                    textAlign: 'center',
+                    color: '#c4a7e7',
+                    fontSize: '12px',
+                    cursor: upgradeLoading ? 'not-allowed' : 'pointer',
+                    fontFamily: 'inherit',
+                    opacity: upgradeLoading ? 0.5 : 1,
+                  }}
+                >
+                  {upgradeLoading ? '[~] Loading...' : '[>] UPGRADE NOW'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { AuthProvider } from '@/components/auth/AuthProvider'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://regexgpt.io'),
   title: 'RegexGPT - AI-Powered Regex Generator & Explainer',
   description: 'Generate regex from plain English or explain any regex pattern instantly. Free AI-powered regex tool for developers.',
   keywords: ['regex', 'regular expression', 'regex generator', 'regex explainer', 'AI regex', 'regex help'],
@@ -25,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-[#1a1a2e] text-[#a8b2c3] antialiased font-mono">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { createServerSupabaseClient, checkRateLimit, incrementUsage, createAdminClient } from '@/lib/supabase'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -18,7 +19,7 @@ When the user provides a regex pattern, explain it clearly and thoroughly:
 Format your response clearly with sections. Be thorough but concise.
 
 Example:
-User: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+User: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$
 
 Your response:
 **Summary:** This regex matches email addresses.
@@ -28,7 +29,7 @@ Your response:
 • \`[a-zA-Z0-9._%+-]+\` - One or more characters: letters, numbers, dots, underscores, percent signs, plus signs, or hyphens (the local part before @)
 • \`@\` - Literal @ symbol
 • \`[a-zA-Z0-9.-]+\` - One or more letters, numbers, dots, or hyphens (the domain name)
-• \`\.\` - Literal dot
+• \`\\.\` - Literal dot
 • \`[a-zA-Z]{2,}\` - Two or more letters (the TLD like "com" or "org")
 • \`$\` - End of string
 
@@ -62,6 +63,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get user if authenticated (optional auth)
+    let userId: string | null = null
+    try {
+      const supabase = createServerSupabaseClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      userId = user?.id || null
+    } catch {
+      // User not authenticated, continue with anonymous rate limits
+    }
+
+    // Check rate limit
+    const rateLimit = await checkRateLimit(userId, 'explain')
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: rateLimit.plan === 'free'
+            ? 'Daily limit reached (20 explanations). Upgrade to Pro for unlimited access.'
+            : 'Daily limit reached. Please try again tomorrow.',
+          upgrade: rateLimit.plan === 'free'
+        },
+        { status: 429 }
+      )
+    }
+
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1500,
@@ -74,11 +100,34 @@ export async function POST(request: NextRequest) {
       ],
     })
 
-    const result = message.content[0].type === 'text' 
+    const result = message.content[0].type === 'text'
       ? message.content[0].text.trim()
       : ''
 
-    return NextResponse.json({ result })
+    // Increment usage after successful explanation
+    await incrementUsage(userId, 'explain')
+
+    // Optionally save to history for Pro users
+    if (userId && rateLimit.plan === 'pro') {
+      try {
+        const admin = createAdminClient()
+        await admin.from('patterns').insert({
+          user_id: userId,
+          input,
+          pattern: result,
+          mode: 'explain',
+        })
+      } catch (historyError) {
+        // Don't fail the request if history save fails
+        console.error('Failed to save to history:', historyError)
+      }
+    }
+
+    return NextResponse.json({
+      result,
+      remaining: rateLimit.remaining,
+      plan: rateLimit.plan
+    })
   } catch (error) {
     console.error('Explain error:', error)
     return NextResponse.json(
