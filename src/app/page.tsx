@@ -640,21 +640,25 @@ export default function Home() {
           </div>
         </div>
 
-        {/* TESTIMONIALS */}
+        {/* USE CASES */}
         <div style={{ marginBottom: '32px' }}>
-          <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// WHAT DEVELOPERS SAY</p>
-          <div style={{ border: '1px solid #6e6a86' }}>
-            <div style={{ padding: '16px', borderBottom: '1px solid #6e6a86' }}>
-              <p style={{ color: '#e8e3e3', margin: '0 0 8px 0', fontStyle: 'italic' }}>
-                "Finally stopped googling 'regex for email' every single project."
-              </p>
-              <p style={{ color: '#6e6a86', margin: 0, fontSize: '12px', textAlign: 'right' }}>- @dev_on_twitter</p>
+          <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// COMMON USE CASES</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+            <div style={{ border: '1px solid #6e6a86', padding: '16px' }}>
+              <div style={{ color: '#7eb8da', marginBottom: '8px' }}>[1] VALIDATION</div>
+              <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0 }}>Emails, URLs, phone numbers, passwords, credit cards</p>
             </div>
-            <div style={{ padding: '16px' }}>
-              <p style={{ color: '#e8e3e3', margin: '0 0 8px 0', fontStyle: 'italic' }}>
-                "The explain feature saved me 2 hours understanding legacy regex."
-              </p>
-              <p style={{ color: '#6e6a86', margin: 0, fontSize: '12px', textAlign: 'right' }}>- reddit user</p>
+            <div style={{ border: '1px solid #6e6a86', padding: '16px' }}>
+              <div style={{ color: '#7eb8da', marginBottom: '8px' }}>[2] EXTRACTION</div>
+              <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0 }}>Pull data from logs, parse HTML, scrape text patterns</p>
+            </div>
+            <div style={{ border: '1px solid #6e6a86', padding: '16px' }}>
+              <div style={{ color: '#7eb8da', marginBottom: '8px' }}>[3] SEARCH/REPLACE</div>
+              <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0 }}>Refactor code, clean data, bulk text transformations</p>
+            </div>
+            <div style={{ border: '1px solid #6e6a86', padding: '16px' }}>
+              <div style={{ color: '#7eb8da', marginBottom: '8px' }}>[4] LEARNING</div>
+              <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0 }}>Understand legacy patterns, debug failing matches</p>
             </div>
           </div>
         </div>
