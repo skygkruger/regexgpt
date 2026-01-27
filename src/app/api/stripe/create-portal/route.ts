@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase'
+import { createServerClient } from '@supabase/ssr'
+import { createAdminClient } from '@/lib/supabase'
 import { createBillingPortalSession } from '@/lib/stripe'
 
 export async function POST(request: NextRequest) {
   try {
+    // Create Supabase client with request cookies
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            // We don't need to set cookies in this API route
+          },
+        },
+      }
+    )
+
     // Get the authenticated user
-    const supabase = createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
