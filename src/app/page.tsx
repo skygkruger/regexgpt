@@ -637,8 +637,8 @@ export default function Home() {
               <Link href="/docs" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</Link>
               <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>
               <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
-              <a href="https://x.com/run_veridian" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[TWITTER]</a>
-              <a href="mailto:support@regexgpt.dev" style={{ color: 'inherit', textDecoration: 'none' }}>[CONTACT]</a>
+              <a href="https://x.com/run_veridian" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[X]</a>
+              <a href="mailto:sky@veridian.run" style={{ color: 'inherit', textDecoration: 'none' }}>[CONTACT]</a>
             </div>
           </div>
         </div>
