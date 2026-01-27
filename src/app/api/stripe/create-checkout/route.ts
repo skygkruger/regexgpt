@@ -95,11 +95,10 @@ export async function POST(request: NextRequest) {
       },
     }
 
-    // If customer already exists, use their ID
+    // If customer already exists, use their ID, otherwise provide email
     if (profile?.stripe_customer_id) {
       sessionParams.customer = profile.stripe_customer_id
-    } else {
-      sessionParams.customer_creation = 'always'
+    } else if (user.email) {
       sessionParams.customer_email = user.email
     }
 
