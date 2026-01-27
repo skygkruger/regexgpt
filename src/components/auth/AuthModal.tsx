@@ -136,24 +136,6 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
           >
             [G] Continue with GitHub
           </button>
-          <button
-            onClick={() => handleOAuth('google')}
-            style={{
-              background: 'none',
-              border: `1px solid ${colors.muted}`,
-              color: colors.text,
-              padding: '12px',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-            }}
-          >
-            [G] Continue with Google
-          </button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
