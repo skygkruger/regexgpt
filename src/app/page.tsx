@@ -94,6 +94,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
+        credentials: 'include',
       })
       const data = await response.json()
 
@@ -114,6 +115,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/stripe/create-portal', {
         method: 'POST',
+        credentials: 'include',
       })
       const data = await response.json()
 
@@ -401,7 +403,43 @@ export default function Home() {
             </div>
             <div style={{ padding: '16px' }}>
               {loading ? (
-                <div style={{ color: '#ffe9b0' }}>[~] Processing your request...</div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{
+                      width: '16px',
+                      height: '16px',
+                      border: '2px solid #6e6a86',
+                      borderTopColor: '#c4a7e7',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                    }} />
+                    <span style={{ color: '#ffe9b0' }}>Generating pattern...</span>
+                  </div>
+                  <div style={{
+                    height: '4px',
+                    backgroundColor: '#252542',
+                    borderRadius: '2px',
+                    overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      height: '100%',
+                      width: '40%',
+                      background: 'linear-gradient(90deg, #7eb8da, #c4a7e7, #a8d8b9)',
+                      borderRadius: '2px',
+                      animation: 'progress 1.5s ease-in-out infinite',
+                    }} />
+                  </div>
+                  <style>{`
+                    @keyframes spin {
+                      to { transform: rotate(360deg); }
+                    }
+                    @keyframes progress {
+                      0% { transform: translateX(-100%); }
+                      50% { transform: translateX(150%); }
+                      100% { transform: translateX(-100%); }
+                    }
+                  `}</style>
+                </div>
               ) : (
                 <div>
                   <code style={{
