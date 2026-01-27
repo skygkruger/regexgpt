@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { constructWebhookEvent, stripe } from '@/lib/stripe'
-import { createAdminClient } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 
-// Disable body parsing - we need the raw body for webhook verification
-export const runtime = 'nodejs'
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+})
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
@@ -20,16 +20,30 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event
 
   try {
-    event = constructWebhookEvent(body, signature)
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err)
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    )
+  } catch (err: any) {
+    console.error('Webhook signature verification failed:', err.message)
     return NextResponse.json(
       { error: 'Webhook signature verification failed' },
       { status: 400 }
     )
   }
 
-  const admin = createAdminClient()
+  // Admin client to bypass RLS
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
 
   try {
     switch (event.type) {
@@ -39,19 +53,51 @@ export async function POST(request: NextRequest) {
         const customerId = session.customer as string
         const subscriptionId = session.subscription as string
 
-        if (userId && customerId && subscriptionId) {
-          // Update user profile with Stripe info and upgrade to Pro
-          await admin
-            .from('profiles')
-            .update({
-              plan: 'pro',
-              stripe_customer_id: customerId,
-              stripe_subscription_id: subscriptionId,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', userId)
+        console.log('Checkout completed:', { userId, customerId, subscriptionId })
 
-          console.log(`User ${userId} upgraded to Pro plan`)
+        if (userId && customerId) {
+          // Check if profile exists
+          const { data: existingProfile } = await admin
+            .from('profiles')
+            .select('id')
+            .eq('id', userId)
+            .single()
+
+          if (existingProfile) {
+            // Update existing profile
+            const { error: updateError } = await admin
+              .from('profiles')
+              .update({
+                plan: 'pro',
+                stripe_customer_id: customerId,
+                stripe_subscription_id: subscriptionId || null,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', userId)
+
+            if (updateError) {
+              console.error('Error updating profile:', updateError)
+            } else {
+              console.log(`User ${userId} upgraded to Pro plan`)
+            }
+          } else {
+            // Create new profile with Pro plan
+            const { error: insertError } = await admin
+              .from('profiles')
+              .insert({
+                id: userId,
+                email: session.customer_email || null,
+                plan: 'pro',
+                stripe_customer_id: customerId,
+                stripe_subscription_id: subscriptionId || null,
+              })
+
+            if (insertError) {
+              console.error('Error creating profile:', insertError)
+            } else {
+              console.log(`Created Pro profile for user ${userId}`)
+            }
+          }
         }
         break
       }
@@ -60,7 +106,6 @@ export async function POST(request: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription
         const customerId = subscription.customer as string
 
-        // Find user by customer ID
         const { data: profile } = await admin
           .from('profiles')
           .select('id')
@@ -68,7 +113,6 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (profile) {
-          // Check if subscription is active
           const isActive = ['active', 'trialing'].includes(subscription.status)
 
           await admin
@@ -89,7 +133,6 @@ export async function POST(request: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription
         const customerId = subscription.customer as string
 
-        // Find user by customer ID
         const { data: profile } = await admin
           .from('profiles')
           .select('id')
@@ -97,7 +140,6 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (profile) {
-          // Downgrade to free plan
           await admin
             .from('profiles')
             .update({
@@ -107,25 +149,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', profile.id)
 
-          console.log(`User ${profile.id} subscription cancelled, downgraded to free`)
-        }
-        break
-      }
-
-      case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice
-        const customerId = invoice.customer as string
-
-        // Find user by customer ID
-        const { data: profile } = await admin
-          .from('profiles')
-          .select('id, email')
-          .eq('stripe_customer_id', customerId)
-          .single()
-
-        if (profile) {
-          console.log(`Payment failed for user ${profile.id} (${profile.email})`)
-          // You could send an email notification here
+          console.log(`User ${profile.id} downgraded to free`)
         }
         break
       }
@@ -135,10 +159,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ received: true })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error processing webhook:', error)
     return NextResponse.json(
-      { error: 'Webhook handler failed' },
+      { error: error.message || 'Webhook handler failed' },
       { status: 500 }
     )
   }
