@@ -8,7 +8,7 @@ import { AuthModal } from '@/components/auth/AuthModal'
 type Mode = 'generate' | 'explain'
 
 export default function Home() {
-  const { user, loading: authLoading, signOut } = useAuth()
+  const { user, session, loading: authLoading, signOut } = useAuth()
   const [mode, setMode] = useState<Mode>('generate')
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
@@ -94,7 +94,9 @@ export default function Home() {
     try {
       const response = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
       })
       const data = await response.json()
 
@@ -115,7 +117,9 @@ export default function Home() {
     try {
       const response = await fetch('/api/stripe/create-portal', {
         method: 'POST',
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
       })
       const data = await response.json()
 

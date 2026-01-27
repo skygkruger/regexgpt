@@ -1,28 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-import { createAdminClient } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { createBillingPortalSession } from '@/lib/stripe'
 
 export async function POST(request: NextRequest) {
   try {
-    // Create Supabase client with request cookies
-    const supabase = createServerClient(
+    // Get the access token from Authorization header
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '')
+
+    if (!token) {
+      return NextResponse.json(
+        { error: 'You must be logged in to access billing' },
+        { status: 401 }
+      )
+    }
+
+    // Create Supabase client and verify the token
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookiesToSet) {
-            // We don't need to set cookies in this API route
-          },
-        },
-      }
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // Get the authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
     if (authError || !user) {
       return NextResponse.json(
@@ -31,9 +30,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get the user's Stripe customer ID
-    const admin = createAdminClient()
-    const { data: profile } = await admin
+    // Get the user's Stripe customer ID using admin client
+    const adminClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
+    const { data: profile } = await adminClient
       .from('profiles')
       .select('stripe_customer_id')
       .eq('id', user.id)
