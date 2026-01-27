@@ -21,6 +21,7 @@ export default function Home() {
   const [remaining, setRemaining] = useState<number | null>(null)
   const [plan, setPlan] = useState<'free' | 'pro'>('free')
   const [upgradeLoading, setUpgradeLoading] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Blinking cursor effect
   useEffect(() => {
@@ -190,9 +191,11 @@ export default function Home() {
 
       {/* HEADER */}
       <header style={{ borderBottom: '1px solid #6e6a86' }}>
-        <div style={{ padding: '18px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="header-inner">
           <span style={{ color: '#7eb8da', fontSize: '15px' }}>REGEXGPT</span>
-          <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: '#7eb8da', alignItems: 'center' }}>
+
+          {/* Desktop Navigation */}
+          <div className="desktop-nav" style={{ fontSize: '13px', color: '#7eb8da' }}>
             <Link href="/docs" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</Link>
             <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>
             <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
@@ -231,16 +234,41 @@ export default function Home() {
               </button>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            [≡]
+          </button>
         </div>
       </header>
 
-      <main style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px' }}>
+      {/* Mobile Navigation Overlay */}
+      <div className={`mobile-nav ${mobileMenuOpen ? 'open' : ''}`}>
+        <button className="mobile-nav-close" onClick={() => setMobileMenuOpen(false)}>[×]</button>
+        <Link href="/docs" onClick={() => setMobileMenuOpen(false)}>[DOCS] Documentation</Link>
+        <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>[PRICING] Plans</a>
+        <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer">[GITHUB] Source</a>
+        {authLoading ? (
+          <span style={{ color: '#6e6a86' }}>[...] Loading</span>
+        ) : user ? (
+          <>
+            <span style={{ color: '#a8d8b9' }}>[{plan.toUpperCase()}] Current Plan</span>
+            <button onClick={() => { signOut(); setMobileMenuOpen(false); }}>[LOGOUT] Sign Out</button>
+          </>
+        ) : (
+          <button onClick={() => { setAuthMode('signin'); setShowAuthModal(true); setMobileMenuOpen(false); }}>[LOGIN] Sign In</button>
+        )}
+      </div>
+
+      <main className="main-content" style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px' }}>
 
         {/* ASCII LOGO */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px', marginTop: '24px' }}>
-          <pre style={{
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px', marginTop: '24px', overflow: 'hidden' }}>
+          <pre className="ascii-logo" style={{
             fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-            fontSize: '20px',
             lineHeight: '1.1',
             margin: 0,
             color: '#7eb8da',
@@ -253,7 +281,7 @@ export default function Home() {
 ██║  ██║███████╗╚██████╔╝███████╗██╔╝ ██╗
 ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝`}
           </pre>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '12px', gap: '0' }}>
+          <div className="gpt-badge" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '12px', gap: '0' }}>
             <span style={{ border: '1px solid #7eb8da', padding: '4px 12px', color: '#7eb8da', fontSize: '14px' }}>G</span>
             <span style={{ color: '#7eb8da', fontSize: '14px' }}>───</span>
             <span style={{ border: '1px solid #7eb8da', padding: '4px 12px', color: '#7eb8da', fontSize: '14px' }}>P</span>
@@ -508,7 +536,7 @@ export default function Home() {
         {/* EXAMPLES */}
         <div style={{ marginBottom: '32px' }}>
           <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// TRY THESE EXAMPLES</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+          <div className="grid-2-col">
             {examples.map((example, i) => (
               <button
                 key={i}
@@ -533,7 +561,7 @@ export default function Home() {
         {/* FEATURES */}
         <div id="features" style={{ marginBottom: '32px' }}>
           <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// FEATURES</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          <div className="grid-3-col">
             <div style={{ border: '1px solid #7eb8da', padding: '16px' }}>
               <div style={{ color: '#7eb8da', marginBottom: '12px' }}>[{'>'}] GENERATE</div>
               <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0, lineHeight: '1.5' }}>
@@ -558,7 +586,7 @@ export default function Home() {
         {/* PRICING */}
         <div id="pricing" style={{ marginBottom: '32px' }}>
           <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// PRICING</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', maxWidth: '600px', margin: '0 auto' }}>
+          <div className="grid-pricing">
             {/* Free Tier */}
             <div style={{ border: '1px solid #6e6a86', padding: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
@@ -643,7 +671,7 @@ export default function Home() {
         {/* USE CASES */}
         <div style={{ marginBottom: '32px' }}>
           <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// COMMON USE CASES</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+          <div className="grid-2-col">
             <div style={{ border: '1px solid #6e6a86', padding: '16px' }}>
               <div style={{ color: '#7eb8da', marginBottom: '8px' }}>[1] VALIDATION</div>
               <p style={{ color: '#a8b2c3', fontSize: '12px', margin: 0 }}>Emails, URLs, phone numbers, passwords, credit cards</p>
@@ -702,7 +730,7 @@ export default function Home() {
           <div style={{ color: '#6e6a86', fontSize: '12px' }}>
             <p style={{ margin: '0 0 8px 0' }}>BUILT WITH {'<'}3 IN THE TERMINAL</p>
             <p style={{ margin: '0 0 16px 0' }}>(c) 2025 REGEXGPT</p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+            <div className="footer-links">
               <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>[HOME]</Link>
               <Link href="/docs" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</Link>
               <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>

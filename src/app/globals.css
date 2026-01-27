@@ -95,3 +95,282 @@ details summary {
 details summary::-webkit-details-marker {
   display: none;
 }
+
+/* ════════════════════════════════════════════════════════════ */
+/*  RESPONSIVE UTILITIES                                         */
+/* ════════════════════════════════════════════════════════════ */
+
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  padding: 6px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+/* Desktop navigation */
+.desktop-nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Mobile navigation overlay */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 26, 46, 0.98);
+  z-index: 999;
+  flex-direction: column;
+  padding: 80px 32px 32px;
+  gap: 24px;
+}
+
+.mobile-nav.open {
+  display: flex;
+}
+
+.mobile-nav-close {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 24px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.mobile-nav a,
+.mobile-nav button {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--text-muted);
+}
+
+/* Responsive grids */
+.grid-2-col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.grid-3-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.grid-pricing {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ASCII logo responsive */
+.ascii-logo {
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+/* Docs sidebar */
+.docs-container {
+  display: flex;
+}
+
+.docs-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--text-muted);
+  padding: 24px 28px;
+  min-height: calc(100vh - 60px);
+}
+
+.docs-sidebar-mobile-toggle {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-deep);
+  border: 2px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  padding: 12px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.docs-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 998;
+}
+
+.docs-sidebar-overlay.open {
+  display: block;
+}
+
+/* Header responsive */
+.header-inner {
+  padding: 18px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Footer links */
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Docs header nav */
+.docs-header-nav {
+  display: flex;
+  gap: 24px;
+}
+
+/* ════════════════════════════════════════════════════════════ */
+/*  TABLET/LARGE PHONE BREAKPOINT (768px and below)              */
+/* ════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Header */
+  .header-inner {
+    padding: 14px 16px;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  /* 3-col becomes 2-col on tablets/large phones */
+  .grid-3-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* ASCII logo scales down slightly */
+  .ascii-logo {
+    font-size: 14px;
+  }
+
+  /* Docs layout */
+  .docs-sidebar {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 999;
+    background: var(--bg-deep);
+    transition: left 0.3s ease;
+    overflow-y: auto;
+  }
+
+  .docs-sidebar.open {
+    left: 0;
+  }
+
+  .docs-sidebar-mobile-toggle {
+    display: block;
+  }
+
+  .docs-main-content {
+    padding: 24px 16px !important;
+  }
+
+  /* Docs header nav */
+  .docs-header-nav {
+    display: none;
+  }
+
+  .docs-header-inner {
+    padding: 14px 16px;
+  }
+
+  /* Footer */
+  .footer-links {
+    gap: 12px;
+  }
+
+  .footer-links a {
+    font-size: 11px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════ */
+/*  MOBILE BREAKPOINT (480px and below)                          */
+/* ════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  /* All grids become single column on small phones */
+  .grid-2-col,
+  .grid-3-col,
+  .grid-pricing {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-pricing {
+    max-width: 100%;
+  }
+
+  /* ASCII logo scales down more */
+  .ascii-logo {
+    font-size: 10px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════ */
+/*  EXTRA SMALL MOBILE BREAKPOINT (380px and below)              */
+/* ════════════════════════════════════════════════════════════ */
+
+@media (max-width: 380px) {
+  /* Even smaller ASCII logo for tiny screens */
+  .ascii-logo {
+    font-size: 8px;
+  }
+
+  /* GPT badge scales */
+  .gpt-badge span {
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+
+  /* Tighter padding on main content */
+  .main-content {
+    padding: 24px 12px !important;
+  }
+
+  /* Footer stacks if needed */
+  .footer-links {
+    gap: 8px;
+  }
+}

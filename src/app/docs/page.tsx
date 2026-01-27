@@ -5,6 +5,12 @@ import Link from 'next/link'
 
 type SectionId = 'getting-started' | 'features' | 'examples' | 'api' | 'faq'
 
+// Helper hook to track sidebar open state on mobile
+const useMobileSidebar = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  return { isOpen, open: () => setIsOpen(true), close: () => setIsOpen(false), toggle: () => setIsOpen(v => !v) }
+}
+
 interface Section {
   id: SectionId
   label: string
@@ -12,6 +18,7 @@ interface Section {
 
 const RegexGPTDocs = () => {
   const [activeSection, setActiveSection] = useState<SectionId>('getting-started')
+  const sidebar = useMobileSidebar()
 
   const colors = {
     bg: '#1a1a2e',
@@ -112,12 +119,7 @@ Flags: g (global)`}
               RegexGPT generates patterns compatible with:
             </p>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '8px',
-              marginBottom: '16px',
-            }}>
+            <div className="grid-3-col" style={{ marginBottom: '16px' }}>
               {['JavaScript', 'Python', 'Java', 'Go', 'Ruby', 'PHP', 'Rust', 'C#', '.NET'].map(lang => (
                 <div key={lang} style={{
                   background: colors.bgLight,
@@ -389,12 +391,7 @@ Response:
               border: `1px solid ${colors.muted}`,
               padding: '16px',
             }}>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '8px',
-                color: colors.text,
-              }}>
+              <div className="grid-2-col" style={{ color: colors.text }}>
                 <div>Free tier:</div>
                 <div style={{ color: colors.muted }}>10 requests/day</div>
                 <div>Pro tier:</div>
@@ -499,31 +496,36 @@ Response:
       {/* Header */}
       <header style={{
         borderBottom: `1px solid ${colors.muted}`,
-        padding: '16px 24px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ color: colors.cyan, fontSize: '18px' }}>RegexGPT</span>
-          <span style={{ color: colors.muted }}>|</span>
-          <span style={{ color: colors.muted }}>Documentation</span>
+        <div className="docs-header-inner" style={{
+          padding: '16px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Link href="/" style={{ color: colors.cyan, fontSize: '18px', textDecoration: 'none' }}>RegexGPT</Link>
+            <span style={{ color: colors.muted }}>|</span>
+            <span style={{ color: colors.muted }}>Documentation</span>
+          </div>
+          <nav className="docs-header-nav">
+            <Link href="/" style={{ color: colors.muted, textDecoration: 'none' }}>[~] Home</Link>
+            <Link href="/docs" style={{ color: colors.cyan, textDecoration: 'none' }}>[?] Docs</Link>
+            <Link href="/#pricing" style={{ color: colors.muted, textDecoration: 'none' }}>[$] Pricing</Link>
+          </nav>
         </div>
-        <nav style={{ display: 'flex', gap: '24px' }}>
-          <Link href="/" style={{ color: colors.muted, textDecoration: 'none' }}>[~] Home</Link>
-          <Link href="/docs" style={{ color: colors.cyan, textDecoration: 'none' }}>[?] Docs</Link>
-          <Link href="/#pricing" style={{ color: colors.muted, textDecoration: 'none' }}>[$] Pricing</Link>
-        </nav>
       </header>
 
-      <div style={{ display: 'flex' }}>
+      <div className="docs-container">
+        {/* Mobile Sidebar Overlay */}
+        <div
+          className={`docs-sidebar-overlay ${sidebar.isOpen ? 'open' : ''}`}
+          onClick={sidebar.close}
+        />
+
         {/* Sidebar */}
-        <aside style={{
-          width: '260px',
-          flexShrink: 0,
-          borderRight: `1px solid ${colors.muted}`,
-          padding: '24px 28px',
-          minHeight: 'calc(100vh - 60px)',
+        <aside className={`docs-sidebar ${sidebar.isOpen ? 'open' : ''}`} style={{
+          background: colors.bg,
         }}>
           <div style={{
             color: colors.cyan,
@@ -550,7 +552,7 @@ Response:
             {sections.map(section => (
               <button
                 key={section.id}
-                onClick={() => setActiveSection(section.id)}
+                onClick={() => { setActiveSection(section.id); sidebar.close(); }}
                 style={{
                   display: 'block',
                   width: '100%',
@@ -586,6 +588,11 @@ Response:
           </div>
         </aside>
 
+        {/* Mobile Sidebar Toggle Button */}
+        <button className="docs-sidebar-mobile-toggle" onClick={sidebar.toggle}>
+          [≡] Menu
+        </button>
+
         {/* Main Content Container - Centers content in remaining space */}
         <div style={{
           flex: 1,
@@ -594,7 +601,7 @@ Response:
           minHeight: 'calc(100vh - 60px)',
           overflow: 'auto',
         }}>
-          <main style={{
+          <main className="docs-main-content" style={{
             width: '100%',
             maxWidth: '700px',
             padding: '32px 48px',
