@@ -191,23 +191,17 @@ export default function Home() {
       />
 
       {/* HEADER */}
-      <header style={{ borderBottom: '1px solid #6e6a86' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '16px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header className="border-b border-[#6e6a86]">
+        <div className="max-w-5xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-              <span style={{ color: '#7eb8da', fontSize: '18px', letterSpacing: '-0.025em' }}>REGEXGPT</span>
-              <span
-                style={{
-                  color: '#7eb8da',
-                  opacity: cursorVisible ? 1 : 0,
-                  transition: 'opacity 0.1s',
-                }}
-              >_</span>
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-[#7eb8da] text-lg tracking-tight">REGEXGPT</span>
+              <span className={`text-[#7eb8da] transition-opacity duration-100 ${cursorVisible ? 'opacity-100' : 'opacity-0'}`}>_</span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <nav className="hidden md:flex items-center gap-6">
               {[
                 { label: 'DOCS', href: '/docs' },
                 { label: 'PRICING', href: '#pricing' },
@@ -217,45 +211,24 @@ export default function Home() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  style={{
-                    position: 'relative',
-                    color: hoveredNav === item.label ? '#7eb8da' : '#6e6a86',
-                    textDecoration: 'none',
-                    transition: 'color 0.2s',
-                    paddingLeft: hoveredNav === item.label ? '16px' : '0',
-                  }}
+                  className="relative text-[#6e6a86] hover:text-[#7eb8da] transition-colors duration-200"
                   onMouseEnter={() => setHoveredNav(item.label)}
                   onMouseLeave={() => setHoveredNav(null)}
                 >
-                  {hoveredNav === item.label && <span style={{ position: 'absolute', left: 0, color: '#7eb8da' }}>&gt;</span>}
-                  [{item.label}]
+                  <span className={`transition-all duration-200 ${hoveredNav === item.label ? 'pl-4' : ''}`}>
+                    {hoveredNav === item.label && <span className="absolute left-0 text-[#7eb8da]">&gt;</span>}
+                    [{item.label}]
+                  </span>
                 </Link>
               ))}
               {authLoading ? (
-                <span style={{ color: '#6e6a86' }}>[...]</span>
+                <span className="text-[#6e6a86]">[...]</span>
               ) : user ? (
                 <>
-                  <span style={{ color: '#a8d8b9' }}>[{plan.toUpperCase()}]</span>
+                  <span className="text-[#a8d8b9]">[{plan.toUpperCase()}]</span>
                   <button
                     onClick={() => signOut()}
-                    style={{
-                      background: 'none',
-                      border: '1px solid #6e6a86',
-                      color: '#6e6a86',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                      fontSize: '14px',
-                      padding: '6px 16px',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#6e6a86';
-                      e.currentTarget.style.color = '#14171a';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = '#6e6a86';
-                    }}
+                    className="border border-[#6e6a86] text-[#6e6a86] px-4 py-1.5 hover:bg-[#6e6a86] hover:text-[#14171a] transition-all duration-200"
                   >
                     [LOGOUT]
                   </button>
@@ -263,24 +236,7 @@ export default function Home() {
               ) : (
                 <button
                   onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }}
-                  style={{
-                    background: 'none',
-                    border: '1px solid #7eb8da',
-                    color: '#7eb8da',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    fontSize: '14px',
-                    padding: '6px 16px',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#7eb8da';
-                    e.currentTarget.style.color = '#14171a';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#7eb8da';
-                  }}
+                  className="border border-[#7eb8da] text-[#7eb8da] px-4 py-1.5 hover:bg-[#7eb8da] hover:text-[#14171a] transition-all duration-200"
                 >
                   [LOGIN]
                 </button>
@@ -288,37 +244,21 @@ export default function Home() {
             </nav>
 
             {/* Mobile Menu */}
-            <div className="mobile-menu-btn" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Link href="/docs" style={{ color: '#6e6a86', textDecoration: 'none', fontSize: '12px' }}>[DOCS]</Link>
+            <div className="flex md:hidden items-center gap-4">
+              <Link href="/docs" className="text-[#6e6a86] text-xs">[DOCS]</Link>
               {authLoading ? (
-                <span style={{ color: '#6e6a86', fontSize: '12px' }}>[...]</span>
+                <span className="text-[#6e6a86] text-xs">[...]</span>
               ) : user ? (
                 <button
                   onClick={() => signOut()}
-                  style={{
-                    background: 'none',
-                    border: '1px solid #6e6a86',
-                    color: '#6e6a86',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    fontSize: '12px',
-                    padding: '4px 12px',
-                  }}
+                  className="border border-[#6e6a86] text-[#6e6a86] px-3 py-1 text-xs"
                 >
                   [LOGOUT]
                 </button>
               ) : (
                 <button
                   onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }}
-                  style={{
-                    background: 'none',
-                    border: '1px solid #7eb8da',
-                    color: '#7eb8da',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    fontSize: '12px',
-                    padding: '4px 12px',
-                  }}
+                  className="border border-[#7eb8da] text-[#7eb8da] px-3 py-1 text-xs"
                 >
                   [LOGIN]
                 </button>
@@ -328,35 +268,34 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="main-content" style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px' }}>
+      <main className="max-w-5xl mx-auto px-6 py-12">
 
         {/* ASCII LOGO */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px', marginTop: '24px', overflow: 'hidden' }}>
-          <pre className="ascii-logo" style={{
-            fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-            lineHeight: '1.1',
-            margin: 0,
-            color: '#7eb8da',
-            textAlign: 'left',
-          }}>
+        <section className="text-center mb-8 md:mb-12">
+          <div className="mb-4 md:mb-6 overflow-x-auto">
+            <pre className="text-[#7eb8da] text-[8px] md:text-xs leading-tight inline-block">
 {`██████╗ ███████╗ ██████╗ ███████╗██╗  ██╗
 ██╔══██╗██╔════╝██╔════╝ ██╔════╝╚██╗██╔╝
 ██████╔╝█████╗  ██║  ███╗█████╗   ╚███╔╝
 ██╔══██╗██╔══╝  ██║   ██║██╔══╝   ██╔██╗
 ██║  ██║███████╗╚██████╔╝███████╗██╔╝ ██╗
 ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝`}
-          </pre>
-          <div className="gpt-badge" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '12px', gap: '0' }}>
-            <span style={{ border: '1px solid #7eb8da', padding: '4px 12px', color: '#7eb8da', fontSize: '14px' }}>G</span>
-            <span style={{ color: '#7eb8da', fontSize: '14px' }}>───</span>
-            <span style={{ border: '1px solid #7eb8da', padding: '4px 12px', color: '#7eb8da', fontSize: '14px' }}>P</span>
-            <span style={{ color: '#7eb8da', fontSize: '14px' }}>───</span>
-            <span style={{ border: '1px solid #7eb8da', padding: '4px 12px', color: '#7eb8da', fontSize: '14px' }}>T</span>
+            </pre>
           </div>
-          <p style={{ color: '#6e6a86', fontSize: '12px', letterSpacing: '1px', marginTop: '12px' }}>
+
+          {/* GPT Badge */}
+          <div className="mb-4 md:mb-6">
+            <pre className="text-[#7eb8da] text-[8px] md:text-xs leading-tight inline-block">
+{`┌───┐   ┌───┐   ┌───┐
+│ G ├───┤ P ├───┤ T │
+└───┘   └───┘   └───┘`}
+            </pre>
+          </div>
+
+          <p className="text-[10px] md:text-xs tracking-widest text-[#6e6a86] mb-6 md:mb-8">
             ·:·:· PATTERN GENERATOR v1.0 ·:·:·
           </p>
-        </div>
+        </section>
 
         {/* TAGLINE */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
