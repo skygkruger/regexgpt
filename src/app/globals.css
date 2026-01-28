@@ -7,9 +7,10 @@
 /* ════════════════════════════════════════════════════════════ */
 
 :root {
-  --bg-deep: #1a1a2e;
-  --bg-card: #16161a;
-  --bg-hover: #232336;
+  /* Backgrounds - Dark with subtle blue/cyan warmth */
+  --bg-deep: #14171a;
+  --bg-card: #191e22;
+  --bg-hover: #1e252a;
   --text-primary: #e8e3e3;
   --text-secondary: #a8b2c3;
   --text-muted: #6e6a86;

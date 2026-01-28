@@ -64,7 +64,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
   }
 
   const colors = {
-    bg: '#1a1a2e',
+    bg: '#14171a',
     bgLight: '#252542',
     text: '#e8e3e3',
     muted: '#6e6a86',

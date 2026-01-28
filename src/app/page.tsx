@@ -176,7 +176,7 @@ export default function Home() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: '#1a1a2e',
+        backgroundColor: '#14171a',
         color: '#a8b2c3',
         fontFamily: 'Consolas, Monaco, "Courier New", monospace',
         fontSize: '14px',
@@ -501,7 +501,7 @@ export default function Home() {
                   <code style={{
                     display: 'block',
                     padding: '12px',
-                    backgroundColor: '#16161a',
+                    backgroundColor: '#191e22',
                     color: '#e8e3e3',
                     fontSize: '13px',
                     whiteSpace: 'pre-wrap',
