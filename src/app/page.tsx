@@ -22,6 +22,7 @@ export default function Home() {
   const [plan, setPlan] = useState<'free' | 'pro'>('free')
   const [upgradeLoading, setUpgradeLoading] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null)
 
   // Blinking cursor effect
   useEffect(() => {
@@ -191,77 +192,141 @@ export default function Home() {
 
       {/* HEADER */}
       <header style={{ borderBottom: '1px solid #6e6a86' }}>
-        <div className="header-inner">
-          <span style={{ color: '#7eb8da', fontSize: '15px' }}>REGEXGPT</span>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '16px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            {/* Logo */}
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+              <span style={{ color: '#7eb8da', fontSize: '18px', letterSpacing: '-0.025em' }}>REGEXGPT</span>
+              <span
+                style={{
+                  color: '#7eb8da',
+                  opacity: cursorVisible ? 1 : 0,
+                  transition: 'opacity 0.1s',
+                }}
+              >_</span>
+            </Link>
 
-          {/* Desktop Navigation */}
-          <div className="desktop-nav" style={{ fontSize: '13px', color: '#7eb8da' }}>
-            <Link href="/docs" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</Link>
-            <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>[PRICING]</a>
-            <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
-            {authLoading ? (
-              <span style={{ color: '#6e6a86' }}>[...]</span>
-            ) : user ? (
-              <>
-                <span style={{ color: '#a8d8b9' }}>[{plan.toUpperCase()}]</span>
+            {/* Desktop Navigation */}
+            <nav className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              {[
+                { label: 'DOCS', href: '/docs' },
+                { label: 'PRICING', href: '#pricing' },
+                { label: 'GITHUB', href: 'https://github.com/skygkruger' },
+                { label: '@', href: 'https://x.com/run_veridian' },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  style={{
+                    position: 'relative',
+                    color: hoveredNav === item.label ? '#7eb8da' : '#6e6a86',
+                    textDecoration: 'none',
+                    transition: 'color 0.2s',
+                    paddingLeft: hoveredNav === item.label ? '16px' : '0',
+                  }}
+                  onMouseEnter={() => setHoveredNav(item.label)}
+                  onMouseLeave={() => setHoveredNav(null)}
+                >
+                  {hoveredNav === item.label && <span style={{ position: 'absolute', left: 0, color: '#7eb8da' }}>&gt;</span>}
+                  [{item.label}]
+                </Link>
+              ))}
+              {authLoading ? (
+                <span style={{ color: '#6e6a86' }}>[...]</span>
+              ) : user ? (
+                <>
+                  <span style={{ color: '#a8d8b9' }}>[{plan.toUpperCase()}]</span>
+                  <button
+                    onClick={() => signOut()}
+                    style={{
+                      background: 'none',
+                      border: '1px solid #6e6a86',
+                      color: '#6e6a86',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      fontSize: '14px',
+                      padding: '6px 16px',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#6e6a86';
+                      e.currentTarget.style.color = '#14171a';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#6e6a86';
+                    }}
+                  >
+                    [LOGOUT]
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }}
+                  style={{
+                    background: 'none',
+                    border: '1px solid #7eb8da',
+                    color: '#7eb8da',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    fontSize: '14px',
+                    padding: '6px 16px',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#7eb8da';
+                    e.currentTarget.style.color = '#14171a';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#7eb8da';
+                  }}
+                >
+                  [LOGIN]
+                </button>
+              )}
+            </nav>
+
+            {/* Mobile Menu */}
+            <div className="mobile-menu-btn" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Link href="/docs" style={{ color: '#6e6a86', textDecoration: 'none', fontSize: '12px' }}>[DOCS]</Link>
+              {authLoading ? (
+                <span style={{ color: '#6e6a86', fontSize: '12px' }}>[...]</span>
+              ) : user ? (
                 <button
                   onClick={() => signOut()}
                   style={{
                     background: 'none',
-                    border: 'none',
+                    border: '1px solid #6e6a86',
                     color: '#6e6a86',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
-                    fontSize: '13px',
+                    fontSize: '12px',
+                    padding: '4px 12px',
                   }}
                 >
                   [LOGOUT]
                 </button>
-              </>
-            ) : (
-              <button
-                onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#7eb8da',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  fontSize: '13px',
-                }}
-              >
-                [LOGIN]
-              </button>
-            )}
+              ) : (
+                <button
+                  onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }}
+                  style={{
+                    background: 'none',
+                    border: '1px solid #7eb8da',
+                    color: '#7eb8da',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    fontSize: '12px',
+                    padding: '4px 12px',
+                  }}
+                >
+                  [LOGIN]
+                </button>
+              )}
+            </div>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            [≡]
-          </button>
         </div>
       </header>
-
-      {/* Mobile Navigation Overlay */}
-      <div className={`mobile-nav ${mobileMenuOpen ? 'open' : ''}`}>
-        <button className="mobile-nav-close" onClick={() => setMobileMenuOpen(false)}>[×]</button>
-        <Link href="/docs" onClick={() => setMobileMenuOpen(false)}>[DOCS] Documentation</Link>
-        <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>[PRICING] Plans</a>
-        <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer">[GITHUB] Source</a>
-        {authLoading ? (
-          <span style={{ color: '#6e6a86' }}>[...] Loading</span>
-        ) : user ? (
-          <>
-            <span style={{ color: '#a8d8b9' }}>[{plan.toUpperCase()}] Current Plan</span>
-            <button onClick={() => { signOut(); setMobileMenuOpen(false); }}>[LOGOUT] Sign Out</button>
-          </>
-        ) : (
-          <button onClick={() => { setAuthMode('signin'); setShowAuthModal(true); setMobileMenuOpen(false); }}>[LOGIN] Sign In</button>
-        )}
-      </div>
 
       <main className="main-content" style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px' }}>
 

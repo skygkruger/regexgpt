@@ -101,16 +101,11 @@ details summary::-webkit-details-marker {
 /*  RESPONSIVE UTILITIES                                         */
 /* ════════════════════════════════════════════════════════════ */
 
-/* Mobile menu button */
+/* Mobile menu button/container */
 .mobile-menu-btn {
   display: none;
-  background: none;
-  border: 1px solid var(--accent-cyan);
-  color: var(--accent-cyan);
-  padding: 6px 10px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 14px;
+  align-items: center;
+  gap: 16px;
 }
 
 /* Desktop navigation */
@@ -266,11 +261,11 @@ details summary::-webkit-details-marker {
   }
 
   .mobile-menu-btn {
-    display: block;
+    display: flex;
   }
 
   .desktop-nav {
-    display: none;
+    display: none !important;
   }
 
   /* 3-col becomes 2-col on tablets/large phones */
