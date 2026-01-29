@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(cd:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(git init:*)",
+      "Bash(gh repo create:*)",
+      "Bash(npm run dev)",
+      "Bash(timeout:*)"
+    ]
+  }
+}
