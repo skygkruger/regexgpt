@@ -113,7 +113,12 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (profile) {
-          const isActive = ['active', 'trialing'].includes(subscription.status)
+          // Active statuses that should have Pro access
+          // - active: Normal active subscription
+          // - trialing: In trial period
+          // - past_due: Payment failed but still in grace period (give benefit of doubt)
+          const activeStatuses = ['active', 'trialing', 'past_due']
+          const isActive = activeStatuses.includes(subscription.status)
 
           await admin
             .from('profiles')
@@ -124,7 +129,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', profile.id)
 
-          console.log(`User ${profile.id} subscription updated: ${subscription.status}`)
+          console.log(`User ${profile.id} subscription updated: ${subscription.status} -> plan: ${isActive ? 'pro' : 'free'}`)
         }
         break
       }
@@ -150,6 +155,57 @@ export async function POST(request: NextRequest) {
             .eq('id', profile.id)
 
           console.log(`User ${profile.id} downgraded to free`)
+        }
+        break
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice
+        const customerId = invoice.customer as string
+        const subscriptionId = invoice.subscription as string
+
+        console.log('Payment failed:', {
+          customerId,
+          subscriptionId,
+          attemptCount: invoice.attempt_count,
+          amountDue: invoice.amount_due,
+        })
+
+        // Find the user profile
+        const { data: profile } = await admin
+          .from('profiles')
+          .select('id, email')
+          .eq('stripe_customer_id', customerId)
+          .single()
+
+        if (profile) {
+          console.log(`Payment failed for user ${profile.id} (${profile.email})`)
+          // Note: Subscription status will be updated via customer.subscription.updated
+          // when Stripe changes it to past_due or unpaid
+          // Future: Could send email notification here
+        }
+        break
+      }
+
+      case 'invoice.payment_action_required': {
+        const invoice = event.data.object as Stripe.Invoice
+        const customerId = invoice.customer as string
+
+        console.log('Payment action required:', {
+          customerId,
+          hostedInvoiceUrl: invoice.hosted_invoice_url,
+        })
+
+        // Find the user profile
+        const { data: profile } = await admin
+          .from('profiles')
+          .select('id, email')
+          .eq('stripe_customer_id', customerId)
+          .single()
+
+        if (profile) {
+          console.log(`Payment action required for user ${profile.id} (${profile.email})`)
+          // Future: Could send email with invoice.hosted_invoice_url for 3D Secure completion
         }
         break
       }

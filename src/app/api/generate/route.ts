@@ -59,10 +59,21 @@ export async function POST(request: NextRequest) {
     const rateLimit = await checkRateLimit(userId, 'generate')
 
     if (!rateLimit.allowed) {
+      // User needs to sign in
+      if (rateLimit.requiresAuth) {
+        return NextResponse.json(
+          {
+            error: 'Sign in to use RegexGPT. Free accounts get 10 generations per day.',
+            requiresAuth: true
+          },
+          { status: 401 }
+        )
+      }
+      // User has hit their rate limit
       return NextResponse.json(
         {
           error: rateLimit.plan === 'free'
-            ? 'Daily limit reached (10 generations). Upgrade to Pro for unlimited access.'
+            ? 'Daily limit reached (10 generations). Upgrade to Pro for more.'
             : 'Daily limit reached. Please try again tomorrow.',
           upgrade: rateLimit.plan === 'free'
         },

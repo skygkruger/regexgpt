@@ -149,10 +149,10 @@ Flags: g (global)`}
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <h3 style={{ color: colors.mint }}>[&gt;] Real-Time Testing</h3>
+              <h3 style={{ color: colors.mint }}>[&gt;] Instant Results</h3>
               <p style={{ color: colors.text, lineHeight: '1.7' }}>
-                Paste your sample text and see matches highlighted instantly.
-                Verify the pattern works before copying to your codebase.
+                Get your regex pattern in seconds. Copy with one click and paste
+                directly into your codebase.
               </p>
             </div>
 
@@ -180,7 +180,7 @@ u  - Unicode support`}
 
             <div style={{ marginBottom: '24px' }}>
               <h3 style={{ color: colors.mint, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                [&gt;] History
+                [&gt;] Pattern History
                 <span style={{
                   color: colors.bgLight,
                   background: colors.cyan,
@@ -189,14 +189,14 @@ u  - Unicode support`}
                 }}>PRO</span>
               </h3>
               <p style={{ color: colors.text, lineHeight: '1.7' }}>
-                Access your previously generated patterns. Search, filter, and
-                reuse patterns across projects.
+                All your generated patterns are automatically saved. Access your
+                history to reuse patterns across projects.
               </p>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
               <h3 style={{ color: colors.mint, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                [&gt;] Collections
+                [&gt;] Higher Limits
                 <span style={{
                   color: colors.bgLight,
                   background: colors.cyan,
@@ -205,8 +205,8 @@ u  - Unicode support`}
                 }}>PRO</span>
               </h3>
               <p style={{ color: colors.text, lineHeight: '1.7' }}>
-                Organize patterns into collections. Share with your team or keep
-                private for personal reference.
+                Pro users get 1,000 generations and 2,000 explanations per day.
+                More than enough for even the busiest development workflows.
               </p>
             </div>
           </div>
@@ -312,76 +312,53 @@ one special character"`}
 
             <div style={{
               background: colors.bgLight,
-              border: `1px solid ${colors.cyan}`,
+              border: `1px solid ${colors.muted}`,
               padding: '12px 16px',
               marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
             }}>
-              <span style={{
-                color: colors.bgLight,
-                background: colors.cyan,
-                padding: '2px 8px',
-                fontSize: '11px',
-              }}>PRO</span>
               <span style={{ color: colors.text }}>
-                API access requires a Pro subscription
+                RegexGPT provides REST API endpoints for generating and explaining regex patterns.
+                Authentication is required for all requests.
               </span>
             </div>
 
             <h3 style={{ color: colors.mint }}>Authentication</h3>
             <p style={{ color: colors.text, lineHeight: '1.7' }}>
-              Include your API key in the request header:
+              Include your session access token in the request header. Obtain this by signing in
+              through the web interface.
             </p>
             <CodeBlock title="header">
-{`Authorization: Bearer YOUR_API_KEY`}
+{`Authorization: Bearer YOUR_ACCESS_TOKEN`}
             </CodeBlock>
 
             <h3 style={{ color: colors.mint }}>Generate Pattern</h3>
-            <CodeBlock title="POST /api/v1/generate">
+            <CodeBlock title="POST /api/generate">
 {`Request:
 {
-  "prompt": "Match all email addresses",
-  "language": "javascript",  // optional
-  "flags": ["g", "i"]        // optional
+  "input": "Match all email addresses"
 }
 
 Response:
 {
-  "success": true,
-  "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}",
-  "flags": "gi",
-  "explanation": {
-    "summary": "Matches standard email format",
-    "parts": [
-      {"part": "[a-zA-Z0-9._%+-]+", "desc": "Local part"},
-      {"part": "@", "desc": "At symbol"},
-      {"part": "[a-zA-Z0-9.-]+", "desc": "Domain"},
-      {"part": "\\\\.", "desc": "Dot separator"},
-      {"part": "[a-zA-Z]{2,}", "desc": "TLD (2+ chars)"}
-    ]
-  }
+  "result": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+  "remaining": 9,
+  "plan": "free"
 }`}
             </CodeBlock>
 
-            <h3 style={{ color: colors.mint }}>Test Pattern</h3>
-            <CodeBlock title="POST /api/v1/test">
+            <h3 style={{ color: colors.mint }}>Explain Pattern</h3>
+            <CodeBlock title="POST /api/explain">
 {`Request:
 {
-  "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}",
-  "flags": "g",
-  "text": "Contact us at hello@example.com or support@test.org"
+  "input": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$"
 }
 
 Response:
 {
-  "success": true,
-  "matches": [
-    {"match": "hello@example.com", "index": 14, "length": 17},
-    {"match": "support@test.org", "index": 35, "length": 16}
-  ],
-  "count": 2
+  "result": "**Summary:** This regex matches email addresses...
+    **Breakdown:** ...",
+  "remaining": 19,
+  "plan": "free"
 }`}
             </CodeBlock>
 
@@ -391,13 +368,23 @@ Response:
               border: `1px solid ${colors.muted}`,
               padding: '16px',
             }}>
-              <div className="grid-2-col" style={{ color: colors.text }}>
-                <div>Free tier:</div>
-                <div style={{ color: colors.muted }}>10 requests/day</div>
-                <div>Pro tier:</div>
-                <div style={{ color: colors.cyan }}>1,000 requests/day</div>
-                <div>Team tier:</div>
-                <div style={{ color: colors.mint }}>10,000 requests/day</div>
+              <div style={{ color: colors.text, marginBottom: '12px' }}>
+                <strong>Free tier:</strong>
+              </div>
+              <div style={{ color: colors.muted, marginLeft: '16px', marginBottom: '8px' }}>
+                [/] 10 generations/day
+              </div>
+              <div style={{ color: colors.muted, marginLeft: '16px', marginBottom: '16px' }}>
+                [/] 20 explanations/day
+              </div>
+              <div style={{ color: colors.cyan, marginBottom: '12px' }}>
+                <strong>Pro tier ($6/mo):</strong>
+              </div>
+              <div style={{ color: colors.muted, marginLeft: '16px', marginBottom: '8px' }}>
+                [/] 1,000 generations/day
+              </div>
+              <div style={{ color: colors.muted, marginLeft: '16px' }}>
+                [/] 2,000 explanations/day
               </div>
             </div>
           </div>
@@ -475,7 +462,7 @@ Response:
               </div>
               <div style={{ color: colors.text }}>
                 Contact us at{' '}
-                <span style={{ color: colors.cyan }}>support@regexgpt.dev</span>
+                <span style={{ color: colors.cyan }}>sky@veridian.run</span>
               </div>
             </div>
           </div>
@@ -617,11 +604,17 @@ Response:
         padding: '16px 24px',
         display: 'flex',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '8px',
         color: colors.muted,
         fontSize: '12px',
       }}>
-        <span>RegexGPT v1.0.0</span>
-        <span>Built with [:] by developers, for developers</span>
+        <span>(c) 2026 RegexGPT · A VERIDIAN TOOLS Product</span>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>[Terms]</Link>
+          <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>[Privacy]</Link>
+        </div>
       </footer>
     </div>
   )

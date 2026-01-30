@@ -87,18 +87,17 @@ export const RATE_LIMITS = {
 export async function checkRateLimit(
   userId: string | null,
   mode: 'generate' | 'explain'
-): Promise<{ allowed: boolean; remaining: number; plan: 'free' | 'pro' }> {
+): Promise<{ allowed: boolean; remaining: number; plan: 'free' | 'pro'; requiresAuth?: boolean }> {
   const admin = createAdminClient()
   const today = new Date().toISOString().split('T')[0]
 
-  // Anonymous users get free tier limits
+  // Anonymous users must sign in to use the API
   if (!userId) {
-    // For anonymous users, we'd need IP-based tracking
-    // For now, allow with free limits
     return {
-      allowed: true,
-      remaining: RATE_LIMITS.free.daily_generations - 1,
-      plan: 'free'
+      allowed: false,
+      remaining: 0,
+      plan: 'free',
+      requiresAuth: true
     }
   }
 

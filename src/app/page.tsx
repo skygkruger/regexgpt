@@ -23,6 +23,15 @@ export default function Home() {
   const [upgradeLoading, setUpgradeLoading] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [hoveredNav, setHoveredNav] = useState<string | null>(null)
+  const [showHistory, setShowHistory] = useState(false)
+  const [history, setHistory] = useState<Array<{
+    id: string
+    input: string
+    pattern: string
+    mode: 'generate' | 'explain'
+    created_at: string
+  }>>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
 
   // Blinking cursor effect
   useEffect(() => {
@@ -81,6 +90,12 @@ export default function Home() {
       const data = await response.json()
 
       if (!response.ok) {
+        if (response.status === 401 && data.requiresAuth) {
+          setError(data.error)
+          setAuthMode('signin')
+          setShowAuthModal(true)
+          return
+        }
         if (response.status === 429 && data.upgrade) {
           setError(data.error)
         } else {
@@ -157,6 +172,35 @@ export default function Home() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to open billing portal')
     }
+  }
+
+  const fetchHistory = async () => {
+    if (!session?.access_token || plan !== 'pro') return
+
+    setHistoryLoading(true)
+    try {
+      const response = await fetch('/api/history', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      })
+      const data = await response.json()
+
+      if (response.ok && data.patterns) {
+        setHistory(data.patterns)
+      }
+    } catch (err) {
+      console.error('Failed to fetch history:', err)
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
+
+  const loadFromHistory = (item: typeof history[0]) => {
+    setMode(item.mode)
+    setInput(item.input)
+    setOutput(item.pattern)
+    setShowHistory(false)
   }
 
   const examples = mode === 'generate'
@@ -537,6 +581,79 @@ export default function Home() {
           </div>
         )}
 
+        {/* HISTORY TOGGLE (Pro only) */}
+        {plan === 'pro' && user && (
+          <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+            <button
+              onClick={() => {
+                if (!showHistory) {
+                  fetchHistory()
+                }
+                setShowHistory(!showHistory)
+              }}
+              style={{
+                background: 'none',
+                border: '1px solid #c4a7e7',
+                color: '#c4a7e7',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: '12px',
+              }}
+            >
+              {showHistory ? '[x] HIDE HISTORY' : '[>] VIEW HISTORY'}
+            </button>
+          </div>
+        )}
+
+        {/* HISTORY PANEL (Pro only) */}
+        {showHistory && plan === 'pro' && (
+          <div style={{ marginBottom: '32px', border: '1px solid #c4a7e7' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid #c4a7e7', color: '#c4a7e7', fontSize: '12px' }}>
+              PATTERN HISTORY
+            </div>
+            <div style={{ padding: '16px', maxHeight: '300px', overflowY: 'auto' }}>
+              {historyLoading ? (
+                <div style={{ color: '#6e6a86', textAlign: 'center' }}>Loading history...</div>
+              ) : history.length === 0 ? (
+                <div style={{ color: '#6e6a86', textAlign: 'center' }}>No patterns saved yet. Generate or explain some patterns to build your history.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {history.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => loadFromHistory(item)}
+                      style={{
+                        background: '#191e22',
+                        border: '1px solid #6e6a86',
+                        padding: '12px',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ color: item.mode === 'generate' ? '#7eb8da' : '#c4a7e7', fontSize: '11px' }}>
+                          [{item.mode.toUpperCase()}]
+                        </span>
+                        <span style={{ color: '#6e6a86', fontSize: '11px' }}>
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div style={{ color: '#a8b2c3', fontSize: '12px', marginBottom: '4px' }}>
+                        {item.input.length > 50 ? item.input.slice(0, 50) + '...' : item.input}
+                      </div>
+                      <div style={{ color: '#e8e3e3', fontSize: '11px', fontFamily: 'monospace' }}>
+                        {item.pattern.length > 60 ? item.pattern.slice(0, 60) + '...' : item.pattern}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* EXAMPLES */}
         <div style={{ marginBottom: '32px' }}>
           <p style={{ color: '#6e6a86', fontSize: '12px', marginBottom: '16px' }}>// TRY THESE EXAMPLES</p>
@@ -601,9 +718,8 @@ export default function Home() {
               <div style={{ color: '#a8b2c3', fontSize: '12px', lineHeight: '2' }}>
                 <div>[/] 10 generations/day</div>
                 <div>[/] 20 explanations/day</div>
-                <div>[/] Basic patterns</div>
-                <div>[x] History & favorites</div>
-                <div>[x] Priority processing</div>
+                <div>[/] All pattern types</div>
+                <div>[x] Pattern history</div>
               </div>
               {plan === 'free' && (
                 <div style={{ marginTop: '16px', border: '1px solid #6e6a86', padding: '8px', textAlign: 'center', color: '#6e6a86', fontSize: '12px' }}>
@@ -623,11 +739,10 @@ export default function Home() {
               </div>
               <div style={{ color: '#e8e3e3', fontSize: '18px', marginBottom: '16px' }}>$6/month</div>
               <div style={{ color: '#a8b2c3', fontSize: '12px', lineHeight: '2' }}>
-                <div>[/] Unlimited generations</div>
-                <div>[/] Unlimited explanations</div>
-                <div>[/] Complex patterns</div>
-                <div>[/] History & favorites</div>
-                <div>[/] Priority processing</div>
+                <div>[/] 1,000 generations/day</div>
+                <div>[/] 2,000 explanations/day</div>
+                <div>[/] All pattern types</div>
+                <div>[/] Pattern history</div>
               </div>
               {plan === 'pro' ? (
                 <button
@@ -733,7 +848,7 @@ export default function Home() {
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px', textAlign: 'center' }}>
           <div style={{ color: '#6e6a86', fontSize: '12px' }}>
             <p style={{ margin: '0 0 8px 0' }}>BUILT WITH {'<'}3 IN THE TERMINAL</p>
-            <p style={{ margin: '0 0 16px 0' }}>(c) 2025 REGEXGPT</p>
+            <p style={{ margin: '0 0 16px 0' }}>(c) 2026 REGEXGPT · A VERIDIAN TOOLS PRODUCT</p>
             <div className="footer-links">
               <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>[HOME]</Link>
               <Link href="/docs" style={{ color: 'inherit', textDecoration: 'none' }}>[DOCS]</Link>
@@ -741,6 +856,15 @@ export default function Home() {
               <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[GITHUB]</a>
               <a href="https://x.com/run_veridian" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>[X]</a>
               <a href="mailto:sky@veridian.run" style={{ color: 'inherit', textDecoration: 'none' }}>[CONTACT]</a>
+            </div>
+            <div className="footer-links" style={{ marginTop: '12px' }}>
+              <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>[TERMS]</Link>
+              <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>[PRIVACY]</Link>
+            </div>
+            {/* VERIDIAN Solidarity Footer */}
+            <div style={{ marginTop: '24px', padding: '16px', border: '1px solid #6e6a86', maxWidth: '400px', margin: '24px auto 0' }}>
+              <p style={{ margin: '0 0 8px 0', color: '#7eb8da' }}>15% of revenue supports free emotional tech sanctuaries</p>
+              <p style={{ margin: 0, fontSize: '10px' }}>VERIDIAN believes technology should heal, not extract.</p>
             </div>
           </div>
         </div>
